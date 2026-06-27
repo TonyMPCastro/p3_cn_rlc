@@ -120,7 +120,7 @@ A viabilidade técnica desta ferramenta numérica em circuitos de IoT depende cr
 O Método de Euler, por ser uma técnica de primeira ordem, assume que a reta tangente no ponto inicial de um intervalo é uma aproximação suficiente para a trajetória da curva inteira. Esse princípio frequentemente resulta em sobreposições ou subestimações da solução real, já que o algoritmo linear é incapaz de acompanhar a curvatura intrínseca das equações diferenciais \cite{stackexchange2015}. Para contornar essa deficiência sem a necessidade de derivar analiticamente termos de ordem superior, a literatura matemática e de engenharia recorre à família de métodos de Runge-Kutta. Esses métodos levam em consideração a curvatura da solução amostrando a taxa de variação (a derivada) em múltiplos pontos dentro de um único intervalo de passo de tempo $h$ \cite{firgelli2026rk, stackexchange2015}. O Método de Runge-Kutta de Quarta Ordem (referenciado classicamente como RK4) é o mais amplamente adotado na engenharia de sistemas de controle e modelagem de circuitos \cite{shaikh2022, firgelli2026rk}.
 
 \subsection{Formulação Matemática do Método RK4}
-Diferentemente do Método de Euler que projeta o próximo estado em apenas uma etapa, o algoritmo RK4 avalia o sistema em quatro estágios distintos dentro do incremento temporal: no início do passo, em duas inclinações no ponto médio avaliadas sucessivamente, e no extremo final do passo \cite{firgelli2026rk, wikipediaRK}. 
+Diferentemente do Método de Euler que projeta o próximo estado em apenas uma etapa, o algoritmo RK4 avalia o sistema em quatro estágios distintos dentro do incremento temporal: no início do passo, em duas inclinações no ponto médio avaliadas sucessivamente, e no extremo final do passo. 
 
 Dada a representação em espaço de estados do circuito RLC série na forma de uma função vetorial $\mathbf{x}'(t) = \mathbf{f}(t, \mathbf{x})$, onde $\mathbf{x}$ engloba a carga e a corrente do supercapacitor, as quatro inclinações intermediárias ($k_1, k_2, k_3, k_4$) são definidas pelas seguintes equações \cite{razak2025, modelagem2026}:
 \begin{align}
@@ -136,7 +136,7 @@ A aproximação do estado futuro da tensão e corrente para o instante $t_{n+1}$
 \end{equation}
 
 \subsection{Análise de Erro de Truncamento e Estabilidade Absoluta}
-O poder computacional do método RK4 reside no seu comportamento perante os erros de aproximação. O erro de truncamento local gerado a cada passo individual é proporcional a $\mathcal{O}(h^5)$. Consequentemente, o erro de truncamento global acumulado ao longo de toda a simulação da descarga do sensor IoT escala na ordem de $\mathcal{O}(h^4)$ \cite{modelagem2026, wikipediaRK}. Em termos práticos, ao se reduzir o tamanho do passo de tempo $h$ pela metade, o erro total cai por um fator de dezesseis ($2^4$), propiciando uma convergência extraordinariamente rápida se comparada à do Método de Euler \cite{firgelli2026rk, modelagem2026}.
+O poder computacional do método RK4 reside no seu comportamento perante os erros de aproximação. O erro de truncamento local gerado a cada passo individual é proporcional a $\mathcal{O}(h^5)$. Consequentemente, o erro de truncamento global acumulado ao longo de toda a simulação da descarga do sensor IoT escala na ordem de $\mathcal{O}(h^4)$ \cite{modelagem2026}. Em termos práticos, ao se reduzir o tamanho do passo de tempo $h$ pela metade, o erro total cai por um fator de dezesseis ($2^4$), propiciando uma convergência extraordinariamente rápida se comparada à do Método de Euler \cite{firgelli2026rk, modelagem2026}.
 
 Além da exatidão superior, o método RK4 oferece um domínio de estabilidade absoluta mais amplo. Para a equação de decaimento natural de um capacitor, a resposta numérica não manifestará instabilidades catastróficas ou oscilações espúrias desde que o tamanho do passo satisfaça a condição $h \le 2,785 RC$ \cite{modelagem2026, firgelli2026rk}. Essa tolerância permite a utilização de passos temporais mais largos, economizando os recursos de processamento que seriam desperdiçados em um algoritmo de primeira ordem.
 
@@ -154,19 +154,19 @@ Para fins de validação rigorosa, a solução exata obtida via Transformada de 
 
 \section{Resultados e Discussões}
 
-A simulação computacional abrangeu o horizonte temporal de $t_{\text{final}} = 15\,\text{ms}$, empregando propositalmente apenas $n = 60$ passos para evidenciar as discrepâncias numéricas (equivalendo a um passo temporal largo de $h = 0{,}25\,\text{ms}$). A resistência foi ajustada para $R = 2\,\Omega$, inserindo o circuito num regime dinâmico severamente subamortecido ($\alpha = 100 \ll \omega_0 = 1000$), uma condição extremamente desafiadora que provoca grandes oscilações transitórias e pune aproximações lineares.
+A simulação computacional abrangeu o horizonte temporal de $t_{\text{final}} = 15\,\text{ms}$, empregando propositalmente apenas $n = 60$ passos para evidenciar as discrepâncias numéricas (equivalendo a um passo temporal de $h = 0{,}25\,\text{ms}$). A resistência foi ajustada para $R = 2\,\Omega$, inserindo o circuito num regime dinâmico severamente subamortecido ($\alpha = 100 \ll \omega_0 = 1000$), uma condição extremamente desafiadora que provoca grandes oscilações transitórias e pune aproximações lineares.
 
 \subsection{Dinâmica da Tensão}
 A Figura~\ref{fig:comparacao} ilustra o comportamento da tensão sobre o supercapacitor durante a sua descarga. Observa-se que a aproximação calculada pelo RK4 se sobrepõe quase perfeitamente à solução analítica de Laplace. Por outro lado, o Método de Euler, limitando-se a uma interpolação linear simples, demonstra dificuldades evidentes nas porções de maior curvatura (como nos vales de oscilação), resultando em desvios subestimados da tensão real.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{comparacao_metodos.png}
+    \includegraphics[width=0.75\textwidth]{comparacao_metodos.png}
     \caption{Sobreposição das curvas de tensão $V_C(t)$ derivadas pela solução exata, Método de Euler e RK4 ($n = 60$).}
     \label{fig:comparacao}
 \end{figure}
 
-Para quantificar essas imensas discrepâncias, a Tabela~\ref{tab:resultados} detalha a tensão nos limites discretos de tempo e apresenta os erros absolutos calculados em relação à curva analítica. Confirma-se numericamente que o RK4 preserva a fidelidade na ordem de microvolts a milivolts (erro máximo na ordem de $10^{-4}$~V), contra aberrações críticas na ordem de Volts ($10^{0}$~V) por parte do Euler.
+Para quantificar essas imensas discrepâncias, a Tabela~\ref{tab:resultados} detalha a tensão nos limites discretos de tempo e apresenta os erros absolutos calculados. Confirma-se numericamente que o RK4 preserva a fidelidade na ordem de microvolts a milivolts, contra aberrações críticas na ordem de Volts ($10^{0}$~V) por parte do Euler.
 
 \begin{table}[H]
     \centering
@@ -185,21 +185,24 @@ Para quantificar essas imensas discrepâncias, a Tabela~\ref{tab:resultados} det
     \end{tabular}
 \end{table}
 
-\subsection{Estudo do Erro e Convergência Algorítmica}
-A discrepância catastrófica observada nas tabelas motivou a plotagem da evolução do erro no tempo (Figura~\ref{fig:erro}). O gráfico em escala logarítmica evidencia que o Método de Euler não suporta as largas etapas temporais numa dinâmica severa, onde seu erro de truncamento acumulado explode alcançando aberrações numéricas. Em valores máximos, o Euler acumulou um desvio imenso de $3{,}61$~V (um erro superior à própria tensão de alimentação), ao passo que o RK4 reteve heroicamente o pico de erro restrito a apenas $4{,}01 \times 10^{-4}$~V, validando-se como impressionantes $8.991$ vezes mais exato perante condições tão difíceis.
+\subsection{Discussão de Erros e Convergência Algorítmica}
+
+A discrepância catastrófica observada nas tabelas motivou a plotagem da evolução do erro absoluto temporal (Figura~\ref{fig:erro}). O gráfico evidencia de imediato a resposta a uma questão fundamental: por que o RK4 performa tão superiormente ao Euler neste modelo físico? A superioridade reside na formulação das médias. O Método de Euler (o mais simples, sendo de primeira ordem) calcula o avanço temporal baseando-se apenas na derivada calculada no início do intervalo temporal. Em um sistema oscilatório severo como o circuito RLC subamortecido, a inclinação das ondas muda violentamente; assim, a reta de Euler torna-se "cega" a essas variações e propaga resíduos irreparáveis a cada passo. O RK4, pelo contrário, avalia quatro pontos (inclinações) distintos dentro de um único passo e utiliza uma média ponderada para moldar a curvatura natural da função com excelência.
+
+Devido a essa limitação severa, ocorreu de fato uma \textbf{explosão de erro numérico} por parte do algoritmo de Euler quando submetido a passos temporais largos ($n = 60$). Como pode ser notado na porção superior da Figura~\ref{fig:erro}, o desvio explodiu abruptamente e acumulou um erro colossal de $3{,}61$~V --- uma aberração que é superior à própria fonte de tensão original de $3{,}3$~V. Em total contraste, o RK4 (porção inferior da Figura) segurou o pico de desvio na ordem de microvolts ($4{,}01 \times 10^{-4}$~V), comprovando-se $8.991$ vezes mais imune ao passo de integração.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{erro_absoluto.png}
-    \caption{Erro absoluto de tensão no domínio temporal para Euler e RK4 (escala logarítmica).}
+    \includegraphics[width=0.75\textwidth]{erro_absoluto.png}
+    \caption{Erro absoluto de tensão no domínio temporal para Euler e RK4 (escala dividida).}
     \label{fig:erro}
 \end{figure}
 
-Por fim, conduziu-se o teste empírico de convergência simulando o mesmo decaimento variando o volume de passos ($n \in [10, 1000]$). A Figura~\ref{fig:convergencia} ratifica matematicamente os teoremas estruturais destes métodos. A curva linear decadente do Método de Euler evidencia sua taxa de convergência empírica baseada na ordem $\mathcal{O}(h)$. Em paralelo, o decaimento acentuado do RK4 ilustra a excelência de sua exatidão superior atrelada a uma diminuição de ordem $\mathcal{O}(h^4)$ dos resíduos numéricos por iteração.
+Por fim, conduziu-se o teste empírico de convergência (Figura~\ref{fig:convergencia}), simulando o mesmo decaimento variando progressivamente a carga computacional ($n \in [10, 1000]$). A imagem consolida visualmente os teoremas dos métodos. A curva linear decadente do Método de Euler comprova a sua taxa lenta de primeira ordem $\mathcal{O}(h)$. Em paralelo, o decaimento íngreme do RK4 ratifica sua natureza de quarta ordem $\mathcal{O}(h^4)$ — onde os erros simplesmente despencam sem que seja necessário onerar o processador do sistema para encontrar a curva exata.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{convergencia.png}
+    \includegraphics[width=0.75\textwidth]{convergencia.png}
     \caption{Teste de convergência algorítmica correlacionando o Erro Máximo versus o número de passos ($n$).}
     \label{fig:convergencia}
 \end{figure}
