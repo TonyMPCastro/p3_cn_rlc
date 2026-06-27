@@ -17,12 +17,6 @@ htmlcov/
 # Jupyter/IPython
 .ipynb_checkpoints/
 
-# Matplotlib / plots
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.bmp
 
 # OS files
 .DS_Store
