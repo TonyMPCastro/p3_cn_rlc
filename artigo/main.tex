@@ -68,11 +68,14 @@
 \section{Introdução}
 No atual cenário da Indústria 4.0, a confiabilidade de dispositivos de Internet das Coisas (IoT) depende intrinsecamente de sua resiliência a quedas e falhas de fornecimento na rede elétrica. Para garantir que tais sistemas tenham autonomia suficiente para executar rotinas críticas de emergência (conhecidas como \textit{dying gasp}, como o salvamento de estados na memória flash e o disparo de alertas finais via rádio), pequenos sensores industriais costumam ser equipados com fontes de energia de backup. Modernamente, pesadas e instáveis baterias eletroquímicas têm sido substituídas por supercapacitores (EDLCs), os quais oferecem uma excelente densidade de potência e elevadíssima tolerância a estressores térmicos e variações de corrente.
 
-Sob o ponto de vista físico e de modelagem de hardware, a descarga elétrica contínua desses supercapacitores — alimentando o microcontrolador do dispositivo e atravessando as indutâncias e resistências parasitárias das trilhas da placa — é classicamente modelada como um circuito RLC em série. A dinâmica deste sistema transiente é governada rigorosamente por uma Equação Diferencial Ordinária (EDO) de segunda ordem. Para o engenheiro projetista, prever com exatidão esse comportamento ao longo do tempo é essencial, pois regimes subamortecidos podem induzir severas oscilações transitórias de tensão (\textit{ringing}), capazes de danificar os circuitos lógicos ou reiniciar o sistema prematuramente.
+Sob o ponto de vista físico e de modelagem de hardware, a descarga elétrica contínua desses supercapacitores, alimentando o microcontrolador do dispositivo e atravessando as indutâncias e resistências parasitárias das trilhas da placa, é classicamente modelada como um circuito RLC em série. A dinâmica deste sistema transiente é governada rigorosamente por uma Equação Diferencial Ordinária (EDO) de segunda ordem. Para o engenheiro projetista, prever com exatidão esse comportamento ao longo do tempo é essencial, pois regimes subamortecidos podem induzir severas oscilações transitórias de tensão (\textit{ringing}), capazes de danificar os circuitos lógicos ou reiniciar o sistema prematuramente.
 
 Visando dominar essa dinâmica, o objetivo central deste estudo é conduzir uma análise comparativa e aprofundada de técnicas matemáticas para a solução da EDO de tensão. Abordaremos a resolução analítica exata via Transformada de Laplace para estabelecer uma base de controle, e implementaremos algoritmos iterativos essenciais da Análise Numérica: o Método de Euler e o Método de Runge-Kutta de Quarta Ordem (RK4). Por meio dessa investigação, o presente artigo demonstrará qual método numérico fornece o melhor equilíbrio de estabilidade para simular confiavelmente a reserva energética de nós IoT.
 
 \section{Fundamentação Teórica}
+
+A modelagem matemática traduz a física da descarga de energia em uma Equação Diferencial Ordinária (EDO) macroscópica, fundamentada nas Leis de Kirchhoff para um circuito transiente RLC série \cite{kafle2025, shaikh2022}. Isso permite definir analiticamente as restrições de amortecimento necessárias para evitar oscilações indesejadas de tensão (\textit{ringing}) que poderiam corromper o hardware \cite{modelagem2026}. 
+
 
 \subsection{Transformada de Laplace}
 
@@ -160,7 +163,7 @@ Esse limite causa uma explosão do erro numérico em passos largos. A Figura~\re
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{erro_absoluto.png}
+    \includegraphics[width=0.65\textwidth]{erro_absoluto.png}
     \caption{Erro absoluto de tensão no tempo (Euler e RK4).}
     \label{fig:erro}
 \end{figure}
@@ -169,15 +172,17 @@ Por fim, o teste de convergência (Figura~\ref{fig:convergencia}) prova os teore
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{convergencia.png}
+    \includegraphics[width=0.65\textwidth]{convergencia.png}
     \caption{Convergência correlacionando Erro Máximo com número de passos ($n$).}
     \label{fig:convergencia}
 \end{figure}
 
 
-\section{Considerações Finais}
+\section{Conclusão e Link do Repositório}
 
 Este estudo demonstrou a extrema importância do Cálculo Numérico no projeto de sistemas embarcados de ultra-baixo consumo. A modelagem da descarga de supercapacitores em sensores IoT, estruturada como uma EDO de segunda ordem, evidenciou a superioridade absoluta do Método de Runge-Kutta de Quarta Ordem (RK4) em relação ao Método de Euler. Enquanto o Euler sofreu explosões de erro numérico de até $3{,}61$ V em um regime dinâmico crítico, o RK4 conteve os resíduos na margem de microvolts e atestou empiricamente uma taxa de convergência da ordem de $\mathcal{O}(h^4)$. Conclui-se que a escolha criteriosa do algoritmo de integração iterativa evita subestimações perigosas, garantindo o dimensionamento exato e a viabilidade das reservas de energia cruciais para a resiliência de redes industriais.
+
+Para fins de reprodutibilidade científica e engajamento da comunidade acadêmica, todo o código-fonte desenvolvido em Python, bem como as imagens e simulações iterativas discutidas neste trabalho, encontram-se versionados e disponibilizados de forma pública. O projeto completo pode ser acessado no repositório do GitHub através do link: \texttt{https://github.com/SEU-USUARIO/p3\_cn\_rlc} (substitua o link pela URL do seu repositório).
 
 \clearpage
 % --- REFERÊNCIAS BIBLIOGRÁFICAS ---
