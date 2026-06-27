@@ -170,7 +170,7 @@ Por fim, o teste de convergência (Figura~\ref{fig:convergencia}) prova os teore
 
 \section{Considerações Finais}
 
-A utilização do Cálculo Numérico na modelagem de sistemas embarcados e dispositivos IoT prova-se de extrema importância. A capacidade de prever a curva de descarga de capacitores utilizando sistemas de EDOs permite o dimensionamento correto de componentes, garantindo a viabilidade e a segurança do processamento de sinais mesmo em condições de falha de energia.
+Este estudo demonstrou a extrema importância do Cálculo Numérico no projeto de sistemas embarcados de ultra-baixo consumo. A modelagem da descarga de supercapacitores em sensores IoT, estruturada como uma EDO de segunda ordem, evidenciou a superioridade absoluta do Método de Runge-Kutta de Quarta Ordem (RK4) em relação ao Método de Euler. Enquanto o Euler sofreu explosões de erro numérico de até $3{,}61$ V em um regime dinâmico crítico, o RK4 conteve os resíduos na margem de microvolts e atestou empiricamente uma taxa de convergência da ordem de $\mathcal{O}(h^4)$. Conclui-se que a escolha criteriosa do algoritmo de integração iterativa evita subestimações perigosas, garantindo o dimensionamento exato e a viabilidade das reservas de energia cruciais para a resiliência de redes industriais.
 
 \clearpage
 % --- REFERÊNCIAS BIBLIOGRÁFICAS ---
