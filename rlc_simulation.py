@@ -251,39 +251,46 @@ def calcular_erros(q_numerico: List[float], q_analitico: List[float]) -> Tuple[L
 def plot_comparacao(t, v_analitico, v_euler, v_rk4, output_path="comparacao_metodos.png"):
     """
     Gráfico 1: Comparação das curvas de tensão V(t).
-    Layout dividido em 2 painéis lado a lado para evitar confusão de sobreposição: 
-    Visão Geral (Esquerda) e Zoom de Destaque (Direita).
+    Estilo Acadêmico, dividido em 2 painéis.
     """
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    
+    # Cores academicas clássicas
+    c_analitico = "black"
+    c_euler = "#D32F2F" # Vermelho formal
+    c_rk4 = "#1976D2"   # Azul formal
+    
     # --- Painel 1: Visão Geral ---
-    ax1.plot(t, v_analitico, label="Analítica (Exata)", color="black", linewidth=2, zorder=1)
-    ax1.plot(t, v_euler, label="Euler (Desvia)", color="royalblue", linestyle="--", marker="o", markersize=5, zorder=2)
-    ax1.plot(t, v_rk4, label="RK4 (Preciso)", color="crimson", linestyle=":", marker="s", markersize=4, zorder=3)
+    ax1.plot(t, v_analitico, label="Solução Analítica", color=c_analitico, linewidth=1.5, zorder=1)
+    ax1.plot(t, v_euler, label="Método de Euler", color=c_euler, linestyle="--", linewidth=1.5, zorder=2)
+    ax1.plot(t, v_rk4, label="Método RK4", color=c_rk4, linestyle="-.", linewidth=1.5, zorder=3)
 
-    ax1.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
-    ax1.set_ylabel("Tensão (V)", fontsize=12, fontweight="bold")
-    ax1.set_title("Visão Geral da Descarga", fontsize=14, fontweight="bold")
-    ax1.legend(loc="upper right", fontsize=11)
-    ax1.grid(True, alpha=0.4, linestyle="--")
+    ax1.set_xlabel("Tempo $t$ (s)", fontsize=12, fontfamily="serif")
+    ax1.set_ylabel("Tensão $V_C(t)$ (V)", fontsize=12, fontfamily="serif")
+    ax1.set_title("Evolução Dinâmica da Tensão (Geral)", fontsize=13, fontfamily="serif")
+    ax1.legend(loc="upper right", fontsize=10, edgecolor="black")
+    ax1.grid(True, alpha=0.3, linestyle="--")
 
-    # Região que daremos zoom
+    # Regiao de zoom
     x1_z, x2_z = 0.002, 0.007
     y1_z, y2_z = -3.5, 0.5
-    # Destacar a área do zoom no painel 1 com um fundo cinza leve
     ax1.axvspan(x1_z, x2_z, color='gray', alpha=0.15)
 
     # --- Painel 2: Zoom no Desvio ---
-    ax2.plot(t, v_analitico, color="black", linewidth=2, zorder=1)
-    ax2.plot(t, v_euler, color="royalblue", linestyle="--", marker="o", markersize=5, zorder=2)
-    ax2.plot(t, v_rk4, color="crimson", linestyle=":", marker="s", markersize=4, zorder=3)
+    ax2.plot(t, v_analitico, color=c_analitico, linewidth=1.5, zorder=1)
+    ax2.plot(t, v_euler, color=c_euler, linestyle="--", marker="o", markersize=4, zorder=2)
+    ax2.plot(t, v_rk4, color=c_rk4, linestyle="-.", marker="s", markersize=3, zorder=3)
 
     ax2.set_xlim(x1_z, x2_z)
     ax2.set_ylim(y1_z, y2_z)
 
-    ax2.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
-    ax2.set_title("Zoom: Falha Grotesca do Euler", fontsize=14, fontweight="bold", color="darkred")
-    ax2.grid(True, alpha=0.4, linestyle="--")
+    ax2.set_xlabel("Tempo $t$ (s)", fontsize=12, fontfamily="serif")
+    ax2.set_title(r"Zoom (Destaque do Truncamento Local)", fontsize=13, fontfamily="serif")
+    ax2.grid(True, alpha=0.3, linestyle="--")
+
+    for ax in [ax1, ax2]:
+        for spine in ax.spines.values():
+            spine.set_linewidth(1.0)
 
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
@@ -294,34 +301,35 @@ def plot_comparacao(t, v_analitico, v_euler, v_rk4, output_path="comparacao_meto
 def plot_erro_absoluto(t, erros_euler, erros_rk4, C, output_path="erro_absoluto.png"):
     """
     Gráfico 2: Erro absoluto da tensão de Euler e RK4 ao longo do tempo.
-    Modificado para ser altamente didático e fácil de compreender.
+    Modificado para formatação acadêmica rigorosa (Eixo Y em Escala Log).
     """
     erro_v_euler = [e / C for e in erros_euler]
-    erro_v_rk4_mv = [(e / C) * 1000 for e in erros_rk4] # Convertido para milivolts para facilitar leitura
-
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
-
-    # Subplot 1: Erro do Euler
-    ax1.plot(t, erro_v_euler, color="red", linewidth=2)
-    ax1.fill_between(t, 0, erro_v_euler, color="red", alpha=0.2)
-    ax1.set_ylabel("Erro Euler (V)\n[Escala de Volts]", fontsize=11, fontweight="bold", color="darkred")
-    ax1.set_title("Evolução do Erro Absoluto Numérico", fontsize=14, fontweight="bold")
-    ax1.grid(True, alpha=0.4, linestyle="--")
-
-    # Subplot 2: Erro do RK4
-    ax2.plot(t, erro_v_rk4_mv, color="green", linewidth=2)
-    ax2.fill_between(t, 0, erro_v_rk4_mv, color="green", alpha=0.2)
-    ax2.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
-    ax2.set_ylabel("Erro RK4 (mV)\n[Escala de Milivolts]", fontsize=11, fontweight="bold", color="darkgreen")
-    ax2.grid(True, alpha=0.4, linestyle="--")
+    erro_v_rk4 = [e / C for e in erros_rk4]
     
-    # Caixa de texto explicativa
-    texto = "Nota de Leitura: Observe a diferença brutal nas escalas (Eixo Y).\nEnquanto o Euler erra na casa dos Volts, o RK4 se mantém restrito a pequenas frações de Milivolts."
-    fig.text(0.5, 0.02, texto, ha="center", fontsize=10, style="italic", 
-             bbox=dict(facecolor="yellow", alpha=0.2, boxstyle="round,pad=0.5"))
+    # Prevenir log(0) e inf no primeiro instante onde o erro pode ser zero
+    eps = 1e-16
+    erro_v_euler = [e + eps for e in erro_v_euler]
+    erro_v_rk4 = [e + eps for e in erro_v_rk4]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.plot(t, erro_v_euler, label="Erro Absoluto - Euler", color="#D32F2F", linewidth=1.5, linestyle="-")
+    ax.plot(t, erro_v_rk4, label="Erro Absoluto - RK4", color="#1976D2", linewidth=1.5, linestyle="--")
+
+    ax.set_yscale("log")
+    ax.set_xlabel("Tempo $t$ (s)", fontsize=12, fontfamily="serif")
+    ax.set_ylabel("Erro Numérico Global $|V_{num} - V_{exato}|$ (V)", fontsize=12, fontfamily="serif")
+    ax.set_title("Evolução do Erro de Truncamento no Tempo", fontsize=14, fontfamily="serif", fontweight="bold")
+    
+    ax.legend(loc="upper right", fontsize=11, frameon=True, edgecolor="black")
+    
+    ax.grid(True, which="major", linestyle="-", alpha=0.3, color="gray")
+    ax.grid(True, which="minor", linestyle=":", alpha=0.2, color="gray")
+
+    for spine in ax.spines.values():
+        spine.set_linewidth(1.2)
 
     plt.tight_layout()
-    plt.subplots_adjust(bottom=0.12) # Espaco para a caixa de texto
     plt.savefig(output_path, dpi=300)
     plt.close()
     print(f"  -> Grafico salvo em: {output_path}")
@@ -329,48 +337,52 @@ def plot_erro_absoluto(t, erros_euler, erros_rk4, C, output_path="erro_absoluto.
 
 def plot_convergencia(R, L, C, V0, t_final, output_path="convergencia.png"):
     """
-    Gráfico 3: Análise de convergência - como o erro diminui
-    quando aumentamos o número de passos.
+    Gráfico 3: Análise de convergência acadêmica (Ordem dos Métodos).
+    Inclui slope triangles característicos para referendar o artigo.
     """
-    # Testar com diferentes quantidades de passos
     lista_n_steps = [10, 20, 50, 100, 200, 500, 1000]
     erros_max_euler = []
     erros_max_rk4 = []
 
     for n in lista_n_steps:
-        # Calcular solução analítica (referência)
         q_analitico, _ = analytic_solution(R, L, C, V0, t_final, n)
-
-        # Calcular soluções numéricas
         q_euler, q_rk4, _ = simulate_rlc(R, L, C, V0, t_final, n)
-
-        # Calcular erro máximo de cada método
         _, erro_euler = calcular_erros(q_euler, q_analitico)
         _, erro_rk4 = calcular_erros(q_rk4, q_analitico)
-
-        erros_max_euler.append(erro_euler / C)  # converter para tensão
+        erros_max_euler.append(erro_euler / C)
         erros_max_rk4.append(erro_rk4 / C)
 
-    plt.figure(figsize=(11, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    plt.loglog(lista_n_steps, erros_max_euler, "o-", color="red",
-               label="Euler (Taxa Lenta)", linewidth=2, markersize=8)
-    plt.loglog(lista_n_steps, erros_max_rk4, "s-", color="green",
-               label="RK4 (Taxa Rápida)", linewidth=2, markersize=8)
+    ax.loglog(lista_n_steps, erros_max_euler, marker="o", markersize=6, 
+              color="#D32F2F", label="Método de Euler", linewidth=1.5)
+    ax.loglog(lista_n_steps, erros_max_rk4, marker="s", markersize=6, 
+              color="#1976D2", label="Método RK4", linewidth=1.5)
 
-    # Textos explicativos para facilitar compreensao
-    plt.text(12, erros_max_euler[0]*0.5, "Erro cai devagar\n(O(h) - Linear)", 
-             color="darkred", fontsize=11, fontweight="bold", 
-             bbox=dict(facecolor="white", edgecolor="none", alpha=0.7))
-    plt.text(12, erros_max_rk4[0]*0.05, "Erro despenca rapidamente\n(O(h^4) - 4ª Ordem)", 
-             color="darkgreen", fontsize=11, fontweight="bold",
-             bbox=dict(facecolor="white", edgecolor="none", alpha=0.7))
+    # Triangulo O(h) (Euler) - entre indices 3 e 4 (n=100 e n=200)
+    n1, n2 = lista_n_steps[3], lista_n_steps[4]
+    e1, e2 = erros_max_euler[3], erros_max_euler[4]
+    ax.plot([n1, n2], [e1, e1], color="black", linewidth=1.0)
+    ax.plot([n2, n2], [e1, e2], color="black", linewidth=1.0)
+    ax.text(n2 * 1.1, e1, r'$\mathcal{O}(h)$', fontsize=12, fontfamily="serif", verticalalignment='center')
 
-    plt.xlabel("Número de passos da simulação (n)", fontsize=12, fontweight="bold")
-    plt.ylabel("Erro máximo acumulado na tensão (V)", fontsize=12, fontweight="bold")
-    plt.title("Análise de Convergência: Como o erro cai ao investir em mais passos", fontsize=14, fontweight="bold")
-    plt.legend(loc="lower left", fontsize=11)
-    plt.grid(True, alpha=0.4, which="both", linestyle=":")
+    # Triangulo O(h^4) (RK4) - entre indices 1 e 2 (n=20 e n=50)
+    nr1, nr2 = lista_n_steps[1], lista_n_steps[2]
+    er1, er2 = erros_max_rk4[1], erros_max_rk4[2]
+    ax.plot([nr1, nr2], [er1, er1], color="black", linewidth=1.0)
+    ax.plot([nr2, nr2], [er1, er2], color="black", linewidth=1.0)
+    ax.text(nr2 * 1.1, er1, r'$\mathcal{O}(h^4)$', fontsize=12, fontfamily="serif", verticalalignment='center')
+
+    ax.set_xlabel("Número de Passos $N$", fontsize=12, fontfamily="serif")
+    ax.set_ylabel("Erro Máximo Global $E_{max}$ (V)", fontsize=12, fontfamily="serif")
+    ax.set_title("Análise de Convergência (Ordem Global)", fontsize=14, fontfamily="serif", fontweight="bold")
+    
+    ax.legend(loc="lower left", fontsize=11, frameon=True, edgecolor="black")
+    ax.grid(True, which="both", linestyle=":", alpha=0.5, color="gray")
+
+    for spine in ax.spines.values():
+        spine.set_linewidth(1.2)
+
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
