@@ -1,9 +1,10 @@
 % --- UNIVERSAL PREAMBLE BLOCK ---
-\documentclass[12pt, a4paper]{article}
+\documentclass[11pt, a4paper]{article}
 
 % Margens baseadas no padrão SBC: Sup 3.5cm, Inf 2.5cm, Esq 3.0cm, Dir 3.0cm
 \usepackage[a4paper, top=3.5cm, bottom=2.5cm, left=3.0cm, right=3.0cm]{geometry}
 
+\usepackage{qrcode}
 
 \usepackage[portuguese, bidi=basic, provide=*]{babel}
 
@@ -106,10 +107,6 @@ Para contornar a deficiência de sobreposições da solução real de Euler, a e
     k_3 &= \mathbf{f}(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2}k_2) \\
     k_4 &= \mathbf{f}(t_n + h, \mathbf{x}_n + h k_3)
 \end{align}
-\begin{equation}
-    \mathbf{x}_{n+1} = \mathbf{x}_n + \frac{h}{6} (k_1 + 2k_2 + 2k_3 + k_4)
-\end{equation}
-
 O poder computacional do RK4 reside na tolerância a erros. O erro global acumulado escala na ordem de $\mathcal{O}(h^4)$ \cite{modelagem2026}. Isso propicia uma convergência extraordinariamente mais rápida se comparada à do Método de Euler \cite{firgelli2026rk}.
 
 \section{Metodologia Computacional}
@@ -130,7 +127,7 @@ A Figura~\ref{fig:comparacao} sobrepõe as estimativas numéricas à solução e
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{comparacao_metodos.png}
+    \includegraphics[width=0.7\textwidth]{comparacao_metodos.png}
     \caption{Curvas de tensão derivadas pela solução exata, Euler e RK4 ($n = 60$).}
     \label{fig:comparacao}
 \end{figure}
@@ -162,7 +159,7 @@ Esse limite causa uma explosão do erro numérico em passos largos. A Figura~\re
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{erro_absoluto.png}
+    \includegraphics[width=0.6\textwidth]{erro_absoluto.png}
     \caption{Erro absoluto de tensão no tempo (Euler e RK4).}
     \label{fig:erro}
 \end{figure}
@@ -171,22 +168,37 @@ Por fim, o teste de convergência (Figura~\ref{fig:convergencia}) prova os teore
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.65\textwidth]{convergencia.png}
+    \includegraphics[width=0.6\textwidth]{convergencia.png}
     \caption{Convergência correlacionando Erro Máximo com número de passos ($n$).}
     \label{fig:convergencia}
 \end{figure}
 
 
-\section{Conclusão e Link do Repositório}
+\section{Conclusão}
 
-Este estudo demonstrou a extrema importância do Cálculo Numérico no projeto de sistemas embarcados de ultra-baixo consumo. A modelagem da descarga de supercapacitores em sensores IoT, estruturada como uma EDO de segunda ordem, evidenciou a superioridade absoluta do Método de Runge-Kutta de Quarta Ordem (RK4) em relação ao Método de Euler. Enquanto o Euler sofreu explosões de erro numérico de até $3{,}61$ V em um regime dinâmico crítico, o RK4 conteve os resíduos na margem de microvolts e atestou empiricamente uma taxa de convergência da ordem de $\mathcal{O}(h^4)$. Conclui-se que a escolha criteriosa do algoritmo de integração iterativa evita subestimações perigosas, garantindo o dimensionamento exato e a viabilidade das reservas de energia cruciais para a resiliência de redes industriais.
+Este estudo demonstrou a extrema importância do Cálculo Numérico no projeto de sistemas embarcados de ultra-baixo consumo. A modelagem da descarga de supercapacitores em sensores IoT, estruturada como uma EDO de segunda ordem, evidenciou a superioridade absoluta do Método de Runge-Kutta de Quarta Ordem (RK4) em relação ao Método de Euler. Enquanto o Euler sofreu explosões de erro numérico de até $3{,}61$ V em um regime dinâmico crítico, o RK4 conteve os resíduos na margem de microvolts e atestou empiricamente uma taxa de convergência da ordem de $\mathcal{O}(h^4)$. 
 
-Para fins de reprodutibilidade científica e engajamento da comunidade acadêmica, todo o código-fonte desenvolvido em Python, bem como as imagens e simulações iterativas discutidas neste trabalho, encontram-se versionados e disponibilizados de forma pública. O projeto completo pode ser acessado no repositório do GitHub através do link: \texttt{https://github.com/SEU-USUARIO/p3\_cn\_rlc} (substitua o link pela URL do seu repositório).
+Conclui-se que a escolha criteriosa do algoritmo de integração iterativa evita subestimações perigosas, garantindo o dimensionamento exato e a viabilidade das reservas de energia cruciais para a resiliência de redes industriais.
 
 \clearpage
 % --- REFERÊNCIAS BIBLIOGRÁFICAS ---
 % Usando o ambiente thebibliography para manter o documento num arquivo único.
 % Chamada do arquivo de referências (referencias.bib)
 \bibliography{referencias}
+
+\clearpage
+
+\section*{Repositório do Código-fonte}
+
+Para fins de reprodutibilidade científica e engajamento da comunidade acadêmica, todo o código-fonte desenvolvido em Python, bem como as imagens e simulações iterativas discutidas neste trabalho, encontram-se versionados e disponibilizados de forma pública no repositório do GitHub através do link: 
+
+\begin{center}
+    \qrcode[height=4cm]{https://github.com/TonyMPCastro/p3_cn_rlc} \\
+    
+    \vspace{0.5cm}
+    \url{https://github.com/TonyMPCastro/p3_cn_rlc}
+\end{center}
+
+\text{Acesse o código através do QR Code acima ou pelo link direto.}
 
 \end{document}
