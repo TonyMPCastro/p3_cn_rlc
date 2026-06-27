@@ -31,8 +31,11 @@ class AnalisadorErros:
         
         erros = []
         for i in range(len(valores_numericos)):
-            erro = abs(valores_numericos[i] - valores_analiticos[i])
-            erros.append(erro)
+            try:
+                erro = abs(valores_numericos[i] - valores_analiticos[i])
+                erros.append(erro)
+            except OverflowError:
+                erros.append(float('inf'))
         
         erro_max = max(erros) if erros else 0.0
         return erros, erro_max
@@ -57,9 +60,12 @@ class AnalisadorErros:
         eps = 1e-16  # Pequeno valor para evitar divisão por zero
         
         for i in range(len(valores_numericos)):
-            denom = abs(valores_analiticos[i]) + eps
-            erro_rel = abs(valores_numericos[i] - valores_analiticos[i]) / denom
-            erros_rel.append(erro_rel)
+            try:
+                denom = abs(valores_analiticos[i]) + eps
+                erro_rel = abs(valores_numericos[i] - valores_analiticos[i]) / denom
+                erros_rel.append(erro_rel)
+            except OverflowError:
+                erros_rel.append(float('inf'))
         
         erro_rel_max = max(erros_rel) if erros_rel else 0.0
         return erros_rel, erro_rel_max
@@ -77,11 +83,17 @@ class AnalisadorErros:
         
         soma_quadrados = 0.0
         for i in range(len(valores_numericos)):
-            erro = valores_numericos[i] - valores_analiticos[i]
-            soma_quadrados += erro ** 2
+            try:
+                erro = valores_numericos[i] - valores_analiticos[i]
+                soma_quadrados += erro ** 2
+            except OverflowError:
+                return float('inf')
         
         n = len(valores_numericos)
-        return (soma_quadrados / n) ** 0.5 if n > 0 else 0.0
+        try:
+            return (soma_quadrados / n) ** 0.5 if n > 0 else 0.0
+        except OverflowError:
+            return float('inf')
     
     @staticmethod
     def resumo_erros(

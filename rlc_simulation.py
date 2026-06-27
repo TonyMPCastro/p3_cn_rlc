@@ -113,7 +113,7 @@ class SimuladorRLC:
         """Exibe os parâmetros do circuito."""
         c = self.circuito
         print("\n--- Parâmetros do Circuito ---")
-        print(f"  R  = {c.R} Ω (resistência)")
+        print(f"  R  = {c.R} Ohms (resistência)")
         print(f"  L  = {c.L} H = {c.L*1000:.1f} mH (indutância)")
         print(f"  C  = {c.C} F = {c.C*1e6:.0f} µF (capacitância)")
         print(f"  V0 = {c.V0} V (tensão inicial)")
@@ -164,15 +164,14 @@ class SimuladorRLC:
 def main():
     """Função principal."""
     
-    # Definir parâmetros do circuito
-    R = 2.0        # Ohms
-    L = 0.01       # Henrys = 10 mH
-    C = 1e-4       # Farads = 100 µF
-    V0 = 3.3       # Volts
-    
-    # Parâmetros da simulação
-    t_final = 0.15  # segundos = 15 ms
-    n_steps = 100
+    # Definir parâmetros do circuito - Valores ideais para testes didáticos (subamortecido)
+    # Valores típicos para um sensor IoT com supercapacitor
+    R = 2.0        # Resistência total do circuito (Ohms)
+    L = 0.01       # Indutância parasita das trilhas (Henrys) = 10 mH
+    C = 1e-4       # Capacitância do supercapacitor (Farads) = 100 uF
+    V0 = 3.3       # Tensão inicial de operação (Volts)
+    t_final = 0.015 # Tempo final da simulação (segundos) = 15 ms
+    n_steps = 60   # Número de passos de tempo
     
     # Criar circuito
     circuito = CircuitoRLC(R=R, L=L, C=C, V0=V0)
