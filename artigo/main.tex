@@ -72,19 +72,18 @@ Sob o ponto de vista físico e de modelagem de hardware, a descarga elétrica co
 
 Visando dominar essa dinâmica, o objetivo central deste estudo é conduzir uma análise comparativa e aprofundada de técnicas matemáticas para a solução da EDO de tensão. Abordaremos a resolução analítica exata via Transformada de Laplace para estabelecer uma base de controle, e implementaremos algoritmos iterativos essenciais da Análise Numérica: o Método de Euler e o Método de Runge-Kutta de Quarta Ordem (RK4). Por meio dessa investigação, o presente artigo demonstrará qual método numérico fornece o melhor equilíbrio de estabilidade para simular confiavelmente a reserva energética de nós IoT.
 
-\section{Fundamentação Teórica}
+\section{Modelagem Matemática}
 
-A modelagem matemática traduz a física da descarga de energia em uma Equação Diferencial Ordinária (EDO) macroscópica, fundamentada nas Leis de Kirchhoff para um circuito transiente RLC série \cite{kafle2025, shaikh2022}. Isso permite definir analiticamente as restrições de amortecimento necessárias para evitar oscilações indesejadas de tensão (\textit{ringing}) que poderiam corromper o hardware \cite{modelagem2026}. 
-
-
-\subsection{Transformada de Laplace}
-
-Aplicando a Lei das Malhas de Kirchhoff ao laço sem fonte, a soma das tensões totaliza zero, gerando a equação da carga $q(t)$ \cite{kafle2025, shaikh2022}:
+A modelagem matemática traduz a física da descarga de energia em uma Equação Diferencial Ordinária (EDO) macroscópica, fundamentada nas Leis de Kirchhoff para um circuito transiente RLC série \cite{kafle2025, shaikh2022}. Aplicando a Lei das Malhas ao laço sem fonte, a soma das tensões totaliza zero, gerando a seguinte EDO governante da carga elétrica $q(t)$:
 \begin{equation}
     L \frac{d^2q(t)}{dt^2} + R \frac{dq(t)}{dt} + \frac{1}{C} q(t) = 0
 \end{equation}
 
-Para a solução analítica ideal, emprega-se a Transformada de Laplace \cite{igwe2025}. Considerando as condições iniciais $q(0) = C V_0$ e $q'(0) = 0$, obtém-se o polinômio característico do sistema:
+Para obtermos uma solução única, o modelo é definido como um Problema de Valor Inicial (PVI), o qual exige condições de contorno bem definidas no instante da queda de energia ($t=0$). A carga estática inicial do supercapacitor é dada por sua capacitância multiplicada pela tensão operacional prévia da fonte ($V_0$), ou seja, $q(0) = q_0 = C V_0$. Além disso, como o indutor se opõe a variações abruptas, a corrente (taxa de variação da carga) inicia-se nula: $q'(0) = i(0) = 0$.
+
+\subsection{Transformada de Laplace}
+
+Para a solução analítica ideal deste PVI, emprega-se a Transformada de Laplace \cite{igwe2025}. Aplicando o operador e inserindo as condições $q(0) = C V_0$ e $q'(0) = 0$, obtém-se o polinômio característico do sistema:
 \begin{equation}
     s^2 + \frac{R}{L} s + \frac{1}{LC} = 0
 \end{equation}
