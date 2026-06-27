@@ -1,4 +1,19 @@
-# Simulação Numérica de um Circuito RLC Série
+
+## Análise Numérica de Circuitos RLC Série: Modelagem da Descarga de Capacitores em Sensores IoT
+
+**Autores:**
+- Antonio Marcos Patrício Castro
+- Felipe Carneiro de Albuquerque Sarmanho
+- Pedro Kaic Ribeiro Veloso
+
+**Instituição:** Centro de Ciências Exatas e Tecnologia (CCET)  
+Universidade Federal do Maranhão (UFMA)
+
+**Docente:** Prof. Me. Lucas Reis Abreu
+
+---
+
+## Descrição do Projeto
 
 Este projeto implementa uma simulação numérica da descarga de um capacitor em um circuito RLC série, com foco em aplicações de backup de energia para sensores IoT. A solução é comparada entre:
 
@@ -19,6 +34,8 @@ No diretório do projeto, instale as dependências com:
 ```bash
 pip install matplotlib numpy
 ```
+
+# Simulação Numérica de um Circuito RLC Série
 
 ## Execução
 
