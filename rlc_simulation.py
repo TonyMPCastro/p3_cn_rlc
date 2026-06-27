@@ -250,53 +250,84 @@ def calcular_erros(q_numerico: List[float], q_analitico: List[float]) -> Tuple[L
 
 def plot_comparacao(t, v_analitico, v_euler, v_rk4, output_path="comparacao_metodos.png"):
     """
-    Gráfico 1: Comparação das curvas de tensão V(t) dos 3 métodos.
+    Grafico 1: Comparacao das curvas de tensao V(t) dos 3 metodos.
+    Inclui um Inset (Zoom) para destacar a falha grotesca do metodo de Euler.
     """
-    plt.figure(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(11, 6))
 
-    plt.plot(t, v_analitico, label="Solução Analítica (Laplace)",
-             color="black", linewidth=2)
-    plt.plot(t, v_euler, label="Método de Euler",
-             color="blue", linestyle="--", linewidth=1.5)
-    plt.plot(t, v_rk4, label="Método RK4",
-             color="red", linestyle=":", linewidth=1.5)
+    # Grafico principal com marcadores para evidenciar os passos discretos
+    ax.plot(t, v_analitico, label="Solucao Analitica (Exata)",
+             color="black", linewidth=2, zorder=1)
+    ax.plot(t, v_euler, label="Metodo de Euler (h largo)",
+             color="royalblue", linestyle="--", marker="o", markersize=5, linewidth=1.5, zorder=2)
+    ax.plot(t, v_rk4, label="Metodo RK4",
+             color="crimson", linestyle=":", marker="s", markersize=4, linewidth=1.5, zorder=3)
 
-    plt.xlabel("Tempo (s)")
-    plt.ylabel("Tensão no capacitor (V)")
-    plt.title("Comparação: Solução Analítica vs. Métodos Numéricos")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    ax.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
+    ax.set_ylabel("Tensao no capacitor (V)", fontsize=12, fontweight="bold")
+    ax.set_title("Dinâmica de Descarga: Solucao Analitica vs Euler vs RK4", fontsize=14, fontweight="bold")
+    ax.legend(loc="upper right", fontsize=11, framealpha=0.9)
+    ax.grid(True, alpha=0.4, linestyle="--")
+
+    # --- Criando o Zoom (Inset Axes) ---
+    # Posicionado no meio-baixo do grafico principal
+    axins = ax.inset_axes([0.35, 0.15, 0.45, 0.4])
+    axins.plot(t, v_analitico, color="black", linewidth=2)
+    axins.plot(t, v_euler, color="royalblue", linestyle="--", marker="o", markersize=5, linewidth=1.5)
+    axins.plot(t, v_rk4, color="crimson", linestyle=":", marker="s", markersize=4, linewidth=1.5)
+
+    # Focar na região de 2ms a 7ms, onde ocorre o grande vale de oscilação
+    x1, x2 = 0.002, 0.007
+    y1, y2 = -3.5, 0.5
+    axins.set_xlim(x1, x2)
+    axins.set_ylim(y1, y2)
+    axins.set_title("Destaque: Divergencia Numérica do Euler", fontsize=10, fontweight="bold", color="darkred")
+    axins.grid(True, alpha=0.3, linestyle=":")
+    axins.tick_params(axis='both', which='major', labelsize=8)
+
+    # Desenhar linhas conectando a regiao de zoom ao inset
+    ax.indicate_inset_zoom(axins, edgecolor="gray", alpha=0.6, linewidth=1.5)
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=200)
+    plt.savefig(output_path, dpi=300) # Salvando em alta resolução
     plt.close()
-    print(f"  -> Gráfico salvo em: {output_path}")
+    print(f"  -> Grafico salvo em: {output_path}")
 
 
 def plot_erro_absoluto(t, erros_euler, erros_rk4, C, output_path="erro_absoluto.png"):
     """
     Gráfico 2: Erro absoluto da tensão de Euler e RK4 ao longo do tempo.
+    Modificado para ser altamente didático e fácil de compreender.
     """
-    # Converter erro de carga para erro de tensão (V = q/C)
     erro_v_euler = [e / C for e in erros_euler]
-    erro_v_rk4 = [e / C for e in erros_rk4]
+    erro_v_rk4_mv = [(e / C) * 1000 for e in erros_rk4] # Convertido para milivolts para facilitar leitura
 
-    plt.figure(figsize=(10, 5))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
 
-    plt.plot(t, erro_v_euler, label="Erro Euler",
-             color="blue", linewidth=1.5)
-    plt.plot(t, erro_v_rk4, label="Erro RK4",
-             color="red", linewidth=1.5)
+    # Subplot 1: Erro do Euler
+    ax1.plot(t, erro_v_euler, color="red", linewidth=2)
+    ax1.fill_between(t, 0, erro_v_euler, color="red", alpha=0.2)
+    ax1.set_ylabel("Erro Euler (V)\n[Escala de Volts]", fontsize=11, fontweight="bold", color="darkred")
+    ax1.set_title("Evolução do Erro Absoluto Numérico", fontsize=14, fontweight="bold")
+    ax1.grid(True, alpha=0.4, linestyle="--")
 
-    plt.xlabel("Tempo (s)")
-    plt.ylabel("Erro absoluto da tensão (V)")
-    plt.title("Erro Absoluto: Euler vs. RK4")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.yscale("log")  # escala logarítmica para ver melhor a diferença
+    # Subplot 2: Erro do RK4
+    ax2.plot(t, erro_v_rk4_mv, color="green", linewidth=2)
+    ax2.fill_between(t, 0, erro_v_rk4_mv, color="green", alpha=0.2)
+    ax2.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
+    ax2.set_ylabel("Erro RK4 (mV)\n[Escala de Milivolts]", fontsize=11, fontweight="bold", color="darkgreen")
+    ax2.grid(True, alpha=0.4, linestyle="--")
+    
+    # Caixa de texto explicativa
+    texto = "Nota de Leitura: Observe a diferença brutal nas escalas (Eixo Y).\nEnquanto o Euler erra na casa dos Volts, o RK4 se mantém restrito a pequenas frações de Milivolts."
+    fig.text(0.5, 0.02, texto, ha="center", fontsize=10, style="italic", 
+             bbox=dict(facecolor="yellow", alpha=0.2, boxstyle="round,pad=0.5"))
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=200)
+    plt.subplots_adjust(bottom=0.12) # Espaco para a caixa de texto
+    plt.savefig(output_path, dpi=300)
     plt.close()
-    print(f"  -> Gráfico salvo em: {output_path}")
+    print(f"  -> Grafico salvo em: {output_path}")
 
 
 def plot_convergencia(R, L, C, V0, t_final, output_path="convergencia.png"):
@@ -323,22 +354,30 @@ def plot_convergencia(R, L, C, V0, t_final, output_path="convergencia.png"):
         erros_max_euler.append(erro_euler / C)  # converter para tensão
         erros_max_rk4.append(erro_rk4 / C)
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(11, 6))
 
-    plt.loglog(lista_n_steps, erros_max_euler, "bo-",
-               label="Euler", linewidth=1.5, markersize=6)
-    plt.loglog(lista_n_steps, erros_max_rk4, "rs-",
-               label="RK4", linewidth=1.5, markersize=6)
+    plt.loglog(lista_n_steps, erros_max_euler, "o-", color="red",
+               label="Euler (Taxa Lenta)", linewidth=2, markersize=8)
+    plt.loglog(lista_n_steps, erros_max_rk4, "s-", color="green",
+               label="RK4 (Taxa Rápida)", linewidth=2, markersize=8)
 
-    plt.xlabel("Número de passos (n)")
-    plt.ylabel("Erro máximo da tensão (V)")
-    plt.title("Convergência: Erro Máximo vs. Número de Passos")
-    plt.legend()
-    plt.grid(True, alpha=0.3, which="both")
+    # Textos explicativos para facilitar compreensao
+    plt.text(12, erros_max_euler[0]*0.5, "Erro cai devagar\n(O(h) - Linear)", 
+             color="darkred", fontsize=11, fontweight="bold", 
+             bbox=dict(facecolor="white", edgecolor="none", alpha=0.7))
+    plt.text(12, erros_max_rk4[0]*0.05, "Erro despenca rapidamente\n(O(h^4) - 4ª Ordem)", 
+             color="darkgreen", fontsize=11, fontweight="bold",
+             bbox=dict(facecolor="white", edgecolor="none", alpha=0.7))
+
+    plt.xlabel("Número de passos da simulação (n)", fontsize=12, fontweight="bold")
+    plt.ylabel("Erro máximo acumulado na tensão (V)", fontsize=12, fontweight="bold")
+    plt.title("Análise de Convergência: Como o erro cai ao investir em mais passos", fontsize=14, fontweight="bold")
+    plt.legend(loc="lower left", fontsize=11)
+    plt.grid(True, alpha=0.4, which="both", linestyle=":")
     plt.tight_layout()
-    plt.savefig(output_path, dpi=200)
+    plt.savefig(output_path, dpi=300)
     plt.close()
-    print(f"  -> Gráfico salvo em: {output_path}")
+    print(f"  -> Grafico salvo em: {output_path}")
 
 
 # Manter compatibilidade com a função antiga
@@ -365,12 +404,12 @@ def main():
     # PASSO 1: Definir os parâmetros do circuito RLC
     # -------------------------------------------------------
     # Valores típicos para um sensor IoT com supercapacitor
-    R = 10.0       # Resistência total do circuito (Ohms)
+    R = 2.0        # Resistência total do circuito (Ohms)
     L = 0.01       # Indutância parasita das trilhas (Henrys) = 10 mH
     C = 1e-4       # Capacitância do supercapacitor (Farads) = 100 uF
     V0 = 3.3       # Tensão inicial de operação (Volts)
-    t_final = 0.01 # Tempo final da simulação (segundos) = 10 ms
-    n_steps = 200  # Número de passos de tempo
+    t_final = 0.015 # Tempo final da simulação (segundos) = 15 ms
+    n_steps = 60   # Número de passos de tempo
 
     print("=" * 65)
     print("  SIMULACAO NUMERICA - CIRCUITO RLC SERIE")
@@ -452,13 +491,13 @@ def main():
     print("\n--- Gerando Graficos ---")
 
     # Grafico 1: Comparacao dos metodos
-    plot_comparacao(t, v_analitico, v_euler, v_rk4, "comparacao_metodos.png")
+    plot_comparacao(t, v_analitico, v_euler, v_rk4, "artigo/comparacao_metodos.png")
 
     # Grafico 2: Erro absoluto ao longo do tempo
-    plot_erro_absoluto(t, erros_euler, erros_rk4, C, "erro_absoluto.png")
+    plot_erro_absoluto(t, erros_euler, erros_rk4, C, "artigo/erro_absoluto.png")
 
     # Grafico 3: Convergencia (erro vs numero de passos)
-    plot_convergencia(R, L, C, V0, t_final, "convergencia.png")
+    plot_convergencia(R, L, C, V0, t_final, "artigo/convergencia.png")
 
     # -------------------------------------------------------
     # PASSO 7: Resumo final

@@ -154,7 +154,7 @@ Para fins de validação rigorosa, a solução exata obtida via Transformada de 
 
 \section{Resultados e Discussões}
 
-A simulação computacional abrangeu o horizonte temporal de $t_{\text{final}} = 10\,\text{ms}$, empregando inicialmente $n = 200$ passos, o que equivale a um passo temporal de $h = 0{,}05\,\text{ms}$. Os parâmetros adotados inserem o circuito num regime dinâmico subamortecido ($\alpha = 500 < \omega_0 = 1000$), uma condição desafiadora que provoca oscilações transitórias e exige precisão dos algoritmos iterativos.
+A simulação computacional abrangeu o horizonte temporal de $t_{\text{final}} = 15\,\text{ms}$, empregando propositalmente apenas $n = 60$ passos para evidenciar as discrepâncias numéricas (equivalendo a um passo temporal largo de $h = 0{,}25\,\text{ms}$). A resistência foi ajustada para $R = 2\,\Omega$, inserindo o circuito num regime dinâmico severamente subamortecido ($\alpha = 100 \ll \omega_0 = 1000$), uma condição extremamente desafiadora que provoca grandes oscilações transitórias e pune aproximações lineares.
 
 \subsection{Dinâmica da Tensão}
 A Figura~\ref{fig:comparacao} ilustra o comportamento da tensão sobre o supercapacitor durante a sua descarga. Observa-se que a aproximação calculada pelo RK4 se sobrepõe quase perfeitamente à solução analítica de Laplace. Por outro lado, o Método de Euler, limitando-se a uma interpolação linear simples, demonstra dificuldades evidentes nas porções de maior curvatura (como nos vales de oscilação), resultando em desvios subestimados da tensão real.
@@ -162,31 +162,31 @@ A Figura~\ref{fig:comparacao} ilustra o comportamento da tensão sobre o superca
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{comparacao_metodos.png}
-    \caption{Sobreposição das curvas de tensão $V_C(t)$ derivadas pela solução exata, Método de Euler e RK4 ($n = 200$).}
+    \caption{Sobreposição das curvas de tensão $V_C(t)$ derivadas pela solução exata, Método de Euler e RK4 ($n = 60$).}
     \label{fig:comparacao}
 \end{figure}
 
-Para quantificar essas discrepâncias, a Tabela~\ref{tab:resultados} detalha a tensão nos limites discretos de tempo e apresenta os erros absolutos calculados em relação à curva analítica. Confirma-se numericamente que o RK4 preserva a fidelidade na ordem de microvolts ($10^{-7}$~V), contra erros perceptíveis (ordem de $10^{-2}$~V) no Euler.
+Para quantificar essas imensas discrepâncias, a Tabela~\ref{tab:resultados} detalha a tensão nos limites discretos de tempo e apresenta os erros absolutos calculados em relação à curva analítica. Confirma-se numericamente que o RK4 preserva a fidelidade na ordem de microvolts a milivolts (erro máximo na ordem de $10^{-4}$~V), contra aberrações críticas na ordem de Volts ($10^{0}$~V) por parte do Euler.
 
 \begin{table}[H]
     \centering
-    \caption{Tensão e erros absolutos extraídos nos principais instantes ($n = 200$).}
+    \caption{Tensão e erros absolutos extraídos nos principais instantes ($n = 60$).}
     \label{tab:resultados}
     \begin{tabular}{ccccc}
         \toprule
         $t$ (ms) & Analítico (V) & Euler (V) & RK4 (V) & Erro Euler (V) \\
         \midrule
-        0,0 & 3,300000 & 3,300000 & 3,300000 & 0,000000 \\
-        2,5 & $-$0,077087 & $-$0,140421 & $-$0,077087 & 6,33$\times 10^{-2}$ \\
-        5,0 & $-$0,246149 & $-$0,239340 & $-$0,246149 & 6,81$\times 10^{-3}$ \\
-        7,5 & 0,085299 & 0,097947 & 0,085299 & 1,26$\times 10^{-2}$ \\
-        10,0 & $-$0,007161 & $-$0,014039 & $-$0,007161 & 6,88$\times 10^{-3}$ \\
+        0,00 & 3,300000 & 3,300000 & 3,300000 & 0,000000 \\
+        3,75 & $-$2,011858 & $-$3,185733 & $-$2,012058 & 1,17$\times 10^{0}$ \\
+        7,50 & 0,739721 & 1,774930 & 0,740103 & 1,03$\times 10^{0}$ \\
+        11,25 & 0,105210 & 0,634171 & 0,104838 & 5,28$\times 10^{-1}$ \\
+        15,00 & $-$0,469621 & $-$3,283289 & $-$0,469416 & 2,81$\times 10^{0}$ \\
         \bottomrule
     \end{tabular}
 \end{table}
 
 \subsection{Estudo do Erro e Convergência Algorítmica}
-A discrepância observada nas tabelas motivou a plotagem da evolução do erro no tempo (Figura~\ref{fig:erro}). O gráfico em escala logarítmica evidencia que o Método de Euler sofre com um erro de truncamento acumulado que cresce abruptamente e alcança picos de instabilidade muito superiores aos mantidos estavelmente pelo RK4. Em valores máximos, o Euler acumulou um desvio de $6{,}69 \times 10^{-2}$~V, ao passo que o RK4 reteve o pico de erro restrito a apenas $1{,}37 \times 10^{-7}$~V, validando-se como cerca de $490.000$ vezes mais exato para a mesma quantidade de cálculos em passos.
+A discrepância catastrófica observada nas tabelas motivou a plotagem da evolução do erro no tempo (Figura~\ref{fig:erro}). O gráfico em escala logarítmica evidencia que o Método de Euler não suporta as largas etapas temporais numa dinâmica severa, onde seu erro de truncamento acumulado explode alcançando aberrações numéricas. Em valores máximos, o Euler acumulou um desvio imenso de $3{,}61$~V (um erro superior à própria tensão de alimentação), ao passo que o RK4 reteve heroicamente o pico de erro restrito a apenas $4{,}01 \times 10^{-4}$~V, validando-se como impressionantes $8.991$ vezes mais exato perante condições tão difíceis.
 
 \begin{figure}[H]
     \centering
