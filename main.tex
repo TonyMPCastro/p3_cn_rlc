@@ -1,0 +1,255 @@
+% --- UNIVERSAL PREAMBLE BLOCK ---
+\documentclass[12pt, a4paper]{article}
+
+% Margens baseadas no padrão SBC: Sup 3.5cm, Inf 2.5cm, Esq 3.0cm, Dir 3.0cm
+\usepackage[a4paper, top=3.5cm, bottom=2.5cm, left=3.0cm, right=3.0cm]{geometry}
+
+
+\usepackage[portuguese, bidi=basic, provide=*]{babel}
+
+\babelprovide[import, onchar=ids fonts]{portuguese}
+\babelprovide[import, onchar=ids fonts]{english}
+
+\usepackage{enumitem}
+\setlist[itemize]{label=-}
+% --------------------------------
+
+% Pacotes para formatação matemática e citações (Originais do usuário)
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage[alf]{abntex2cite}
+\usepackage{indentfirst} % Recua o primeiro parágrafo de cada seção
+\usepackage{graphicx}    % Para incluir figuras (gráficos gerados pelo Python)
+\usepackage{booktabs}    % Para tabelas com formatação profissional
+\usepackage{float}       % Para posicionamento de figuras com [H]
+
+% Ajuste de espaçamento de parágrafo padrão da SBC
+\setlength{\parindent}{1.27cm}
+
+\begin{document}
+
+% --- CABEÇALHO DO ARTIGO (Estilo SBC) ---
+\begin{center}
+    {\Large \bfseries Análise Numérica de Circuitos RLC Série: Modelagem da Descarga de Capacitores em Sensores IoT\par}
+    \vspace{0.8cm}
+    
+    {\normalsize     
+    \textbf{Antonio Marcos Patrício Castro}\\
+    \textbf{Felipe Carneiro de Albuquerque Sarmanho} \\
+    \textbf{Pedro Kaic Ribeiro Veloso}
+    \par}
+    \vspace{0.4cm}
+    
+    {\normalsize Centro de Ciências Exatas e Tecnologia (CCET) \\
+    Universidade Federal do Maranhão (UFMA)\par}
+    \vspace{0.2cm}
+    
+    {\normalsize \textbf{Docente:} Prof. Me. Lucas Reis Abreu\par}
+\end{center}
+
+\vspace{0.2cm}
+
+% --- ABSTRACT E RESUMO ---
+\begin{quote}
+    \noindent\small
+    \textbf{Abstract.} \textit{This work presents a numerical study on the solution of Ordinary Differential Equations (ODEs) applied to real-world problems, specifically focusing on IoT signal processing. We analyze the discharge of a capacitor powering a small Internet of Things (IoT) sensor when the main power is cut, modeled by a RLC circuit. Numerical methods are employed to solve the differential equation governing the electric charge over time.}
+    
+    \vspace{0.3cm} % Espaço entre abstract e resumo
+    
+    \noindent
+    \textbf{Resumo.} \textit{Este trabalho apresenta um estudo numérico sobre a solução de Equações Diferenciais Ordinárias (EDOs) aplicadas a problemas reais, com foco em processamento de sinais IoT. Analisa-se a descarga de um capacitor alimentando um pequeno sensor de Internet das Coisas (IoT) em caso de corte de energia principal, modelado através de um circuito RLC. Métodos numéricos são empregados para resolver a equação diferencial que rege a carga elétrica no tempo.}
+\end{quote}
+
+\vspace{0.8cm}
+
+% --- CORPO DO TEXTO ---
+
+\section*{Introdução}
+
+A infraestrutura moderna da Internet das Coisas (IoT) exige alta confiabilidade, especialmente em redes de medição inteligente e ambientes industriais sujeitos a perturbações e cortes na rede elétrica principal \cite{sosa2024}. Durante essas falhas de energia, é fundamental que pequenos sensores IoT permaneçam operacionais por um período transitório mínimo para executar as chamadas rotinas de "último suspiro" (\textit{dying gasp}) \cite{modelagem2026}. Este procedimento crítico envolve o salvamento seguro de estados em memórias não voláteis e a transmissão de pacotes de dados de alerta por meio de redes de comunicação de longo alcance (como LoRaWAN ou NB-IoT) antes do completo desligamento do sistema \cite{sosa2024}.
+
+Historicamente, o fornecimento dessa energia temporária era confiado a baterias químicas. Contudo, suas limitações intrínsecas, que englobam a degradação química severa sob variações térmicas, a baixa densidade de potência e os riscos de fuga térmica, impulsionaram a transição para os supercapacitores (também denominados Capacitores Elétricos de Dupla Camada, ou EDLCs) \cite{gekakis2015, modelagem2026}. Armazenando energia de forma puramente eletrostática através da adsorção física de íons, os supercapacitores garantem uma elevada densidade de potência (acima de $1.000\,\text{W/kg}$), sendo adequados para suprir as rápidas flutuações de carga exigidas pelos transceptores de rádio da IoT. Além disso, apresentam uma vida útil extensa, capaz de exceder 500.000 ciclos operacionais \cite{gekakis2015, modelagem2026}.
+
+Do ponto de vista macroscópico, a dinâmica da descarga desse banco de supercapacitores alimentando a carga resistiva equivalente do microcontrolador e interagindo com as indutâncias parasitas das trilhas pode ser modelada analiticamente por um circuito RLC série \cite{kafle2025, shaikh2022}. A aplicação da Lei das Malhas de Kirchhoff estabelece que o comportamento da carga elétrica no tempo é governado por uma Equação Diferencial Ordinária (EDO) de segunda ordem. A resposta transitória natural do circuito é categorizada pelo seu fator de amortecimento, dependente da resistência ($R$), indutância ($L$) e capacitância ($C$). Para garantir a integridade dos sinais lógicos no hardware, projeta-se o circuito para operar em regime superamortecido ou criticamente amortecido, evitando as flutuações de subtensão prejudiciais (\textit{ringing}) características do regime subamortecido \cite{kafle2025, modelagem2026}.
+
+No entanto, o modelo analítico linear frequentemente não reflete a realidade das redes IoT, dada a natureza pulsada do consumo de corrente dos microcontroladores e a necessidade de se considerar modelos elétricos avançados para supercapacitores (como o modelo de múltiplos ramos, que descreve a redistribuição de carga ao longo de diferentes constantes de tempo) \cite{gekakis2015, igwe2025}. Para superar essa dificuldade e a impossibilidade de soluções analíticas fechadas nesses casos, recorre-se a métodos de integração numérica \cite{igwe2025}. 
+
+As formulações de passo único, como o Método de Euler explícito e os métodos da família Runge-Kutta, são amplamente adotadas para a resolução de EDOs. O Método de Euler, por utilizar uma aproximação puramente linear (com erro local de truncamento de ordem $\mathcal{O}(h^2)$), exibe forte estabilidade condicional; para um modelo capacitivo linear, a convergência exige rigorosamente que o tamanho do passo obedeça à condição $h < 2RC$, limite além do qual o método entra em instabilidade numérica \cite{aselebe2026, modelagem2026, qi2026}. 
+
+Por outro lado, o Método de Runge-Kutta de Quarta Ordem (RK4) é reconhecido por proporcionar um balanceamento ideal entre eficiência computacional e exatidão \cite{igwe2025, shaikh2022}. O RK4 amostra múltiplas inclinações intermediárias em um mesmo passo de tempo, o que eleva sua precisão para a ordem $\mathcal{O}(h^4)$ e amplia consideravelmente o domínio da estabilidade absoluta (e.g., $h \le 2,785RC$) \cite{aselebe2026, modelagem2026, qi2026}. 
+
+Diante dessa complexidade, o presente trabalho se propõe a conduzir uma análise numérica comparativa da descarga de capacitores em cenários IoT (via EDO de circuito RLC série). O foco recairá sobre a avaliação de convergência e estabilidade entre aproximações numéricas (como o Método de Euler e o RK4) frente ao comportamento analítico esperado, validando as estratégias matemáticas necessárias para assegurar a autonomia energética de dispositivos de processamento de sinais de ultra-baixo consumo durante apagões.
+
+
+\section{Modelagem Matemática e Numérica}
+
+A modelagem matemática traduz a física da descarga de energia em uma Equação Diferencial Ordinária (EDO) macroscópica, fundamentada nas Leis de Kirchhoff para um circuito transiente RLC série \cite{kafle2025, shaikh2022}. Isso permite definir analiticamente as restrições de amortecimento necessárias para evitar oscilações indesejadas de tensão (\textit{ringing}) que poderiam corromper o hardware \cite{modelagem2026}. 
+
+Contudo, como as soluções exatas tornam-se frequentemente intratáveis na prática devido ao consumo não linear e pulsado inerente aos transceptores de rádio da IoT \cite{gekakis2015}, a modelagem numérica intervém aplicando algoritmos de aproximação iterativa como o Método de Euler explícito \cite{igwe2025, aselebe2026}. Essa abordagem permite simular computacionalmente a curva transiente de decaimento da tensão no tempo, avaliar a estabilidade do sistema em função do passo numérico ($h$) e assegurar que a capacitância selecionada seja suficiente para manter o microcontrolador operante até a conclusão segura de suas rotinas críticas.
+
+
+\subsection{Transformada de Laplace}
+
+O processo de descarga de um supercapacitor atuando como reserva de energia para um dispositivo da Internet das Coisas (IoT) pode ser inicialmente aproximado por um modelo linear ideal. Ao aplicar a Lei das Malhas de Kirchhoff ao laço fechado sem fonte ativa, a soma das quedas de tensão no indutor ($L$), no resistor ($R$) e no capacitor ($C$) totaliza zero, resultando na seguinte equação diferencial para a carga elétrica $q(t)$ \cite{kafle2025, shaikh2022}:
+\begin{equation}
+    L \frac{d^2q(t)}{dt^2} + R \frac{dq(t)}{dt} + \frac{1}{C} q(t) = 0
+\end{equation}
+
+Para analisar o decaimento transitório e obter a solução analítica exata deste regime ideal, emprega-se a Transformada de Laplace, que mapeia o problema do domínio do tempo ($t$) para o domínio da frequência complexa ($s$) \cite{igwe2025}. Aplicando o operador de Laplace à EDO e considerando as condições iniciais de carga $q(0) = q_0 = C V_0$ e corrente inicial nula $q'(0) = i(0) = 0$, obtém-se a equação algébrica:
+\begin{equation}
+    L \left( s^2 Q(s) - s q(0) - q'(0) \right) + R \left( s Q(s) - q(0) \right) + \frac{1}{C} Q(s) = 0
+\end{equation}
+
+Isolando a variável dependente $Q(s)$, a função de transferência do sistema e suas propriedades dinâmicas são evidenciadas pelo polinômio no denominador, conhecido como equação característica:
+\begin{equation}
+    s^2 + \frac{R}{L} s + \frac{1}{LC} = 0
+\end{equation}
+
+As raízes (ou polos) desta equação característica são encontradas por meio da fórmula quadrática e definem o coeficiente de amortecimento neperiano ($\alpha = \frac{R}{2L}$) e a frequência natural não amortecida ($\omega_0 = \frac{1}{\sqrt{LC}}$) do sistema \cite{shaikh2022, kafle2025}. A relação entre esses dois parâmetros dita a natureza analítica da resposta de tensão no sensor IoT, que pode ser:
+\begin{itemize}
+    \item \textbf{Superamortecida ($\alpha > \omega_0$):} As raízes são reais e distintas. A tensão decai de forma puramente exponencial e lenta, sem oscilações \cite{kafle2025}.
+    \item \textbf{Criticamente amortecida ($\alpha = \omega_0$):} As raízes são reais e idênticas. O sistema atinge o repouso no menor tempo possível sem cruzar o limiar de zero, configurando a resposta de descarga mais eficiente e segura para o hardware \cite{shaikh2022}.
+    \item \textbf{Subamortecida ($\alpha < \omega_0$):} As raízes são complexas conjugadas. A carga e a tensão exibem um comportamento oscilatório amortecido, induzindo ruídos e subtensões prejudiciais ao microcontrolador \cite{kafle2025}.
+\end{itemize}
+
+Embora a solução contínua derivada via Transformada de Laplace forneça uma base teórica valiosa e sirva como padrão absoluto para a validação e o cálculo do erro global das simulações numéricas \cite{igwe2025}, ela apresenta limitações severas em cenários práticos. Em aplicações reais de IoT, o consumo de corrente do microcontrolador e dos transceptores de rádio é altamente dinâmico e pulsado \cite{modelagem2026}. Além disso, a física interna dos supercapacitores envolve fenômenos transitórios complexos, como a redistribuição de carga ao longo de diferentes constantes de tempo e correntes de fuga, parâmetros frequentemente descritos por modelos não lineares de múltiplos ramos \cite{gekakis2015}. Diante dessa complexidade e da impossibilidade de se obter soluções analíticas fechadas para modelos dinâmicos reais, justifica-se a transição obrigatória para as formulações numéricas de passo único (detalhadas nas seções seguintes). Algoritmos como o Método de Euler e o de Runge-Kutta permitem a integração passo a passo da EDO, adaptando-se com precisão às variações instantâneas do sistema \cite{modelagem2026, igwe2025}.
+
+\subsection{Método de Euler}
+Visto que a equação governante do circuito RLC é de segunda ordem, a aplicação de técnicas numéricas de passo único, como o Método de Euler explícito, exige a redução prévia do sistema para o espaço de estados, transformando a EDO em um sistema acoplado de duas EDOs de primeira ordem \cite{aselebe2026, qi2026}. Definem-se as variáveis de estado $x_1(t) = q(t)$ (carga) e $x_2(t) = \frac{dq(t)}{dt} = i(t)$ (corrente). A partir dessa substituição, a EDO original é reescrita como:
+\begin{align}
+    \frac{dx_1(t)}{dt} &= x_2(t) \\
+    \frac{dx_2(t)}{dt} &= -\frac{1}{LC} x_1(t) - \frac{R}{L} x_2(t)
+\end{align}
+
+O Método de Euler explícito atua aproximando as derivadas através de diferenças finitas progressivas, avançando o estado do sistema por incrementos temporais discretos e constantes de tamanho $h$ \cite{aselebe2026}. A formulação iterativa geral do método é dada por $y_{n+1} = y_n + h \cdot f(t_n, y_n)$. Aplicado ao sistema de espaço de estados, produzem-se as seguintes equações de diferença para a carga e a corrente:
+\begin{align}
+    q_{n+1} &= q_n + h \cdot i_n \\
+    i_{n+1} &= i_n + h \left( -\frac{1}{LC} q_n - \frac{R}{L} i_n \right)
+\end{align}
+
+A viabilidade técnica desta ferramenta numérica em circuitos de IoT depende criticamente da estabilidade condicionada ao tamanho do passo temporal $h$. Sendo o Método de Euler um esquema explícito de primeira ordem, o valor de $h$ deve ser mantido rigorosamente dentro da região de estabilidade absoluta do sistema, o que obriga que o fator de amplificação a cada iteração obedeça à condição $|1 + \lambda h| \le 1$ \cite{qi2026}. Caso o passo $h$ seja escolhido excessivamente grande em relação à dinâmica do circuito, os erros de truncamento local sofrerão crescimento, desencadeando instabilidades algorítmicas (\textit{stiffness}) \cite{qi2026, aselebe2026}.
+
+\section{Runge-Kutta}
+
+\subsection{Limitações do Método de Euler e o Princípio do Runge-Kutta}
+O Método de Euler, por ser uma técnica de primeira ordem, assume que a reta tangente no ponto inicial de um intervalo é uma aproximação suficiente para a trajetória da curva inteira. Esse princípio frequentemente resulta em sobreposições ou subestimações da solução real, já que o algoritmo linear é incapaz de acompanhar a curvatura intrínseca das equações diferenciais \cite{stackexchange2015}. Para contornar essa deficiência sem a necessidade de derivar analiticamente termos de ordem superior, a literatura matemática e de engenharia recorre à família de métodos de Runge-Kutta. 
+
+Esses métodos levam em consideração a curvatura da solução amostrando a taxa de variação (a derivada) em múltiplos pontos dentro de um único intervalo de passo de tempo $h$ \cite{firgelli2026rk, stackexchange2015}. O Método de Runge-Kutta de Quarta Ordem (referenciado classicamente como RK4) é o mais amplamente adotado na engenharia de sistemas de controle e modelagem de circuitos, pois oferece um excelente balanço entre a precisão da resposta e o custo computacional exigido do simulador \cite{shaikh2022, firgelli2026rk}.
+
+\subsection{Formulação Matemática do Método RK4}
+Diferentemente do Método de Euler que projeta o próximo estado em apenas uma etapa, o algoritmo RK4 avalia o sistema em quatro estágios distintos dentro do incremento temporal: no início do passo, em duas inclinações no ponto médio avaliadas sucessivamente, e no extremo final do passo \cite{firgelli2026rk, wikipediaRK}. 
+
+Dada a representação em espaço de estados do circuito RLC série na forma de uma função vetorial $\mathbf{x}'(t) = \mathbf{f}(t, \mathbf{x})$, onde $\mathbf{x}$ engloba a carga e a corrente do supercapacitor, as quatro inclinações intermediárias ($k_1, k_2, k_3, k_4$) são definidas pelas seguintes equações \cite{razak2025, modelagem2026}:
+\begin{align}
+    k_1 &= \mathbf{f}(t_n, \mathbf{x}_n) \\
+    k_2 &= \mathbf{f}\left(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2} k_1\right) \\
+    k_3 &= \mathbf{f}\left(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2} k_2\right) \\
+    k_4 &= \mathbf{f}(t_n + h, \mathbf{x}_n + h k_3)
+\end{align}
+
+A aproximação do estado futuro da tensão e corrente para o instante $t_{n+1}$ é finalmente consolidada por uma média ponderada destas quatro inclinações, na qual os coeficientes dos pontos médios recebem peso dobrado (com base nas regras de integração de Simpson) \cite{firgelli2026rk, razak2025}:
+\begin{equation}
+    \mathbf{x}_{n+1} = \mathbf{x}_n + \frac{h}{6} (k_1 + 2k_2 + 2k_3 + k_4)
+\end{equation}
+
+\subsection{Análise de Erro de Truncamento e Estabilidade Absoluta}
+O poder computacional do método RK4 reside no seu comportamento perante os erros de aproximação. O erro de truncamento local gerado a cada passo individual é proporcional a $\mathcal{O}(h^5)$. Consequentemente, o erro de truncamento global acumulado ao longo de toda a simulação da descarga do sensor IoT escala na ordem de $\mathcal{O}(h^4)$ \cite{modelagem2026, wikipediaRK}. Em termos práticos, ao se reduzir o tamanho do passo de tempo $h$ pela metade, o erro total cai por um fator de dezesseis ($2^4$), propiciando uma convergência extraordinariamente rápida se comparada à do Método de Euler \cite{firgelli2026rk, modelagem2026}.
+
+Além da exatidão superior, o método RK4 oferece um domínio de estabilidade absoluta mais amplo. Para a equação de decaimento natural de um capacitor, a resposta numérica não manifestará instabilidades catastróficas ou oscilações espúrias desde que o tamanho do passo satisfaça a condição $h \le 2,785 RC$ \cite{modelagem2026, firgelli2026rk}. Essa tolerância permite a utilização de passos temporais mais largos, economizando os recursos de processamento que seriam desperdiçados em um algoritmo de primeira ordem.
+
+
+\section{Metodologia Computacional}
+
+\subsection{Tradução Algorítmica e Parâmetros de Entrada}
+Para a implementação computacional dos modelos matemáticos, o fluxo de simulação inicializa o estado do sensor IoT no momento do corte de energia. A condição de fronteira inicial é estipulada fixando-se a corrente como nula ($i_0 = 0\,\text{A}$) e a carga inicial como $q_0 = C \cdot V_0$, onde $V_0$ tipicamente reside em níveis lógicos (ex: $3,3\,\text{V}$ ou $5,0\,\text{V}$) \cite{igwe2025}. Os parâmetros de entrada elétricos baseiam-se em valores de operação de transientes (por exemplo, resistências do sistema e trilhas $R$, indutâncias parasitas $L$, e capacitâncias de supercapacitores $C$) \cite{shaikh2022}. Como métricas de saída, o código aloca vetores computacionais para armazenar sequencialmente a evolução do vetor tempo ($t$) e a tensão instantânea disponível no capacitor ($V_C(t) = \frac{q(t)}{C}$).
+
+\subsection{Estrutura do Laço de Repetição e Validação dos Dados}
+A simulação computacional utiliza um laço de repetição que resolve as equações de diferença do Método de Euler progressivamente ao longo do horizonte de tempo estudado. A cada incremento do índice $n$, o sistema avalia as funções de derivada com base nos vetores de estado do passo imediatamente anterior, multiplicando a taxa de variação pelo passo $h$ e somando o resultado para prever o estado no tempo $t_{n+1}$ \cite{aselebe2026}.
+
+Para validar a implementação e medir o erro numérico, o algoritmo compara os resultados discretos do Método de Euler com a solução analítica contínua baseada em Laplace \cite{igwe2025}. A diferença entre as malhas de resultados produz um registro de erro absoluto que atesta a convergência do modelo. 
+
+O algoritmo foi desenvolvido na linguagem \textit{Python}, amplamente empregada por sua robustez e facilidade de manipulação em problemas de equações diferenciais ordinárias \cite{igwe2025}. O ecossistema suporta essa estrutura por meio da biblioteca \textit{NumPy}, utilizada nas operações de matrizes e vetores de passo de estado, e da ferramenta \textit{Matplotlib}, responsável pela plotagem gráfica e análise visual das curvas de tensão, evidenciando as oscilações numéricas ou a estabilidade da aproximação em contraste com a solução exata \cite{igwe2025, aselebe2026}.
+
+
+\section{Resultados e Discussão}
+
+Para avaliar e comparar o desempenho dos métodos numéricos, a simulação foi executada com os seguintes parâmetros do circuito, representativos de um sensor IoT alimentado por supercapacitor: $R = 10\,\Omega$, $L = 10\,\text{mH}$, $C = 100\,\mu\text{F}$ e $V_0 = 3{,}3\,\text{V}$. O horizonte de simulação foi fixado em $t_{\text{final}} = 10\,\text{ms}$ com $n = 200$ passos de tempo ($h = 0{,}05\,\text{ms}$). Esses valores colocam o circuito no regime subamortecido ($\alpha = 500 < \omega_0 = 1000$), evidenciando oscilações amortecidas na tensão do capacitor.
+
+\subsection{Comparação das Curvas de Tensão}
+
+A Figura~\ref{fig:comparacao} apresenta a sobreposição das curvas de tensão $V_C(t) = q(t)/C$ obtidas pelos três métodos. Observa-se que a curva do RK4 é praticamente indistinguível da solução analítica em toda a faixa temporal, enquanto o Método de Euler apresenta desvios visíveis, especialmente nas regiões de maior curvatura (picos e vales da oscilação amortecida).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{comparacao_metodos.png}
+    \caption{Comparação das curvas de tensão no capacitor obtidas pela solução analítica (Laplace), Método de Euler e Método RK4, com $n = 200$ passos.}
+    \label{fig:comparacao}
+\end{figure}
+
+\subsection{Tabela Comparativa de Valores}
+
+A Tabela~\ref{tab:resultados} apresenta os valores de tensão calculados em cinco instantes representativos ao longo da simulação, juntamente com os respectivos erros absolutos.
+
+\begin{table}[H]
+    \centering
+    \caption{Valores de tensão e erros absolutos em pontos selecionados ($n = 200$).}
+    \label{tab:resultados}
+    \begin{tabular}{ccccc}
+        \toprule
+        $t$ (ms) & $V_{\text{analítico}}$ (V) & $V_{\text{Euler}}$ (V) & $V_{\text{RK4}}$ (V) & Erro Euler (V) \\
+        \midrule
+        0,000 & 3,300000 & 3,300000 & 3,300000 & 0,000000 \\
+        2,500 & $-$0,077087 & $-$0,140421 & $-$0,077087 & 6,33$\times 10^{-2}$ \\
+        5,000 & $-$0,246149 & $-$0,239340 & $-$0,246149 & 6,81$\times 10^{-3}$ \\
+        7,500 & 0,085299 & 0,097947 & 0,085299 & 1,26$\times 10^{-2}$ \\
+        10,000 & $-$0,007161 & $-$0,014039 & $-$0,007161 & 6,88$\times 10^{-3}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Os dados evidenciam que o erro do RK4 permanece na ordem de $10^{-7}$~V ou inferior em todos os pontos amostrados, enquanto o Método de Euler acumula erros na ordem de $10^{-2}$~V, especialmente nos instantes de maior variação da tensão.
+
+\subsection{Análise do Erro Absoluto}
+
+A Figura~\ref{fig:erro} ilustra a evolução temporal do erro absoluto da tensão para ambos os métodos numéricos, em escala logarítmica. Nota-se que o erro do Método de Euler cresce significativamente nos primeiros milissegundos da simulação, atingindo um pico de aproximadamente $6{,}7 \times 10^{-2}$~V. Em contraste, o erro do RK4 mantém-se abaixo de $1{,}4 \times 10^{-7}$~V durante toda a simulação, confirmando sua superioridade de aproximadamente $5 \times 10^5$ vezes em termos de precisão para o mesmo passo temporal.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{erro_absoluto.png}
+    \caption{Erro absoluto da tensão ao longo do tempo para os métodos de Euler e RK4, em escala logarítmica.}
+    \label{fig:erro}
+\end{figure}
+
+\subsection{Análise de Convergência}
+
+Para investigar a taxa de convergência dos métodos, a simulação foi repetida variando-se o número de passos $n$ de 10 a 1000. A Figura~\ref{fig:convergencia} apresenta o erro máximo em função de $n$ em escala log-log. Observa-se que o Método de Euler apresenta convergência linear (inclinação $\approx -1$), coerente com seu erro global de ordem $\mathcal{O}(h)$. Já o RK4 apresenta convergência de quarta ordem (inclinação $\approx -4$), ou seja, ao dobrar o número de passos, o erro é reduzido por um fator de $2^4 = 16$, conforme previsto pela teoria \cite{modelagem2026, firgelli2026rk}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{convergencia.png}
+    \caption{Análise de convergência: erro máximo da tensão em função do número de passos, em escala log-log.}
+    \label{fig:convergencia}
+\end{figure}
+
+Essa diferença na taxa de convergência tem implicações práticas diretas: para atingir uma precisão de $10^{-6}$~V, o Método de Euler necessitaria de milhões de passos, enquanto o RK4 alcança esse patamar com apenas algumas centenas de passos.
+
+
+\section{Considerações Finais}
+
+A utilização do Cálculo Numérico na modelagem de sistemas embarcados e dispositivos IoT prova-se de extrema importância. A capacidade de prever a curva de descarga de capacitores utilizando sistemas de EDOs permite o dimensionamento correto de componentes, garantindo a viabilidade e a segurança do processamento de sinais mesmo em condições de falha de energia.
+
+Os resultados obtidos demonstraram claramente a superioridade do Método de Runge-Kutta de Quarta Ordem (RK4) sobre o Método de Euler explícito na resolução da EDO do circuito RLC série. Para os parâmetros simulados ($R = 10\,\Omega$, $L = 10\,\text{mH}$, $C = 100\,\mu\text{F}$, $V_0 = 3{,}3\,\text{V}$), o RK4 apresentou um erro máximo da ordem de $10^{-7}$~V, enquanto o Método de Euler acumulou erros na ordem de $10^{-2}$~V, uma diferença de precisão superior a cinco ordens de grandeza.
+
+A análise de convergência confirmou os comportamentos teóricos esperados: convergência de primeira ordem ($\mathcal{O}(h)$) para o Euler e de quarta ordem ($\mathcal{O}(h^4)$) para o RK4. Em termos práticos, isso significa que o RK4 permite a utilização de passos temporais significativamente maiores sem comprometer a precisão, economizando recursos computacionais que seriam desperdiçados em um esquema de primeira ordem.
+
+A solução analítica via Transformada de Laplace serviu como referência absoluta para a validação dos métodos numéricos, permitindo o cálculo preciso dos erros de truncamento. Embora essa solução exata seja limitada a modelos lineares e ideais, ela se mostrou indispensável como padrão de comparação na etapa de verificação do código.
+
+Em suma, o presente trabalho evidencia que a escolha criteriosa do método numérico é fundamental para garantir simulações confiáveis de circuitos de backup em sistemas IoT, e que o RK4 representa a melhor relação entre custo computacional e precisão para essa classe de problemas.
+
+% --- REFERÊNCIAS BIBLIOGRÁFICAS ---
+% Usando o ambiente thebibliography para manter o documento num arquivo único.
+% Chamada do arquivo de referências (referencias.bib)
+\bibliography{referencias}
+
+\end{document}
