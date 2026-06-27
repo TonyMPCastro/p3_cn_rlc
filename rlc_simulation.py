@@ -250,46 +250,43 @@ def calcular_erros(q_numerico: List[float], q_analitico: List[float]) -> Tuple[L
 
 def plot_comparacao(t, v_analitico, v_euler, v_rk4, output_path="comparacao_metodos.png"):
     """
-    Grafico 1: Comparacao das curvas de tensao V(t) dos 3 metodos.
-    Inclui um Inset (Zoom) para destacar a falha grotesca do metodo de Euler.
+    Gráfico 1: Comparação das curvas de tensão V(t).
+    Layout dividido em 2 painéis lado a lado para evitar confusão de sobreposição: 
+    Visão Geral (Esquerda) e Zoom de Destaque (Direita).
     """
-    fig, ax = plt.subplots(figsize=(11, 6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Grafico principal com marcadores para evidenciar os passos discretos
-    ax.plot(t, v_analitico, label="Solucao Analitica (Exata)",
-             color="black", linewidth=2, zorder=1)
-    ax.plot(t, v_euler, label="Metodo de Euler (h largo)",
-             color="royalblue", linestyle="--", marker="o", markersize=5, linewidth=1.5, zorder=2)
-    ax.plot(t, v_rk4, label="Metodo RK4",
-             color="crimson", linestyle=":", marker="s", markersize=4, linewidth=1.5, zorder=3)
+    # --- Painel 1: Visão Geral ---
+    ax1.plot(t, v_analitico, label="Analítica (Exata)", color="black", linewidth=2, zorder=1)
+    ax1.plot(t, v_euler, label="Euler (Desvia)", color="royalblue", linestyle="--", marker="o", markersize=5, zorder=2)
+    ax1.plot(t, v_rk4, label="RK4 (Preciso)", color="crimson", linestyle=":", marker="s", markersize=4, zorder=3)
 
-    ax.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Tensao no capacitor (V)", fontsize=12, fontweight="bold")
-    ax.set_title("Dinâmica de Descarga: Solucao Analitica vs Euler vs RK4", fontsize=14, fontweight="bold")
-    ax.legend(loc="upper right", fontsize=11, framealpha=0.9)
-    ax.grid(True, alpha=0.4, linestyle="--")
+    ax1.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
+    ax1.set_ylabel("Tensão (V)", fontsize=12, fontweight="bold")
+    ax1.set_title("Visão Geral da Descarga", fontsize=14, fontweight="bold")
+    ax1.legend(loc="upper right", fontsize=11)
+    ax1.grid(True, alpha=0.4, linestyle="--")
 
-    # --- Criando o Zoom (Inset Axes) ---
-    # Posicionado no meio-baixo do grafico principal
-    axins = ax.inset_axes([0.35, 0.15, 0.45, 0.4])
-    axins.plot(t, v_analitico, color="black", linewidth=2)
-    axins.plot(t, v_euler, color="royalblue", linestyle="--", marker="o", markersize=5, linewidth=1.5)
-    axins.plot(t, v_rk4, color="crimson", linestyle=":", marker="s", markersize=4, linewidth=1.5)
+    # Região que daremos zoom
+    x1_z, x2_z = 0.002, 0.007
+    y1_z, y2_z = -3.5, 0.5
+    # Destacar a área do zoom no painel 1 com um fundo cinza leve
+    ax1.axvspan(x1_z, x2_z, color='gray', alpha=0.15)
 
-    # Focar na região de 2ms a 7ms, onde ocorre o grande vale de oscilação
-    x1, x2 = 0.002, 0.007
-    y1, y2 = -3.5, 0.5
-    axins.set_xlim(x1, x2)
-    axins.set_ylim(y1, y2)
-    axins.set_title("Destaque: Divergencia Numérica do Euler", fontsize=10, fontweight="bold", color="darkred")
-    axins.grid(True, alpha=0.3, linestyle=":")
-    axins.tick_params(axis='both', which='major', labelsize=8)
+    # --- Painel 2: Zoom no Desvio ---
+    ax2.plot(t, v_analitico, color="black", linewidth=2, zorder=1)
+    ax2.plot(t, v_euler, color="royalblue", linestyle="--", marker="o", markersize=5, zorder=2)
+    ax2.plot(t, v_rk4, color="crimson", linestyle=":", marker="s", markersize=4, zorder=3)
 
-    # Desenhar linhas conectando a regiao de zoom ao inset
-    ax.indicate_inset_zoom(axins, edgecolor="gray", alpha=0.6, linewidth=1.5)
+    ax2.set_xlim(x1_z, x2_z)
+    ax2.set_ylim(y1_z, y2_z)
+
+    ax2.set_xlabel("Tempo (s)", fontsize=12, fontweight="bold")
+    ax2.set_title("Zoom: Falha Grotesca do Euler", fontsize=14, fontweight="bold", color="darkred")
+    ax2.grid(True, alpha=0.4, linestyle="--")
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300) # Salvando em alta resolução
+    plt.savefig(output_path, dpi=300)
     plt.close()
     print(f"  -> Grafico salvo em: {output_path}")
 
