@@ -15,7 +15,7 @@
 \setlist[itemize]{label=-}
 % --------------------------------
 
-% Pacotes para formatação matemática e citações (Originais do usuário)
+% Pacotes para formatação matemática e citações
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
@@ -54,12 +54,12 @@
 % --- ABSTRACT E RESUMO ---
 \begin{quote}
     \noindent\small
-    \textbf{Abstract.} \textit{This paper presents a numerical study on solving Ordinary Differential Equations (ODEs) applied to industrial signal processing. We analyze the transient discharge of a supercapacitor acting as backup power for an Internet of Things (IoT) sensor, modeled as an underdamped series RLC circuit. The dynamics were simulated using Euler's Method and the Fourth-Order Runge-Kutta (RK4) method. Results showed that the Euler algorithm suffered from a numerical error explosion (reaching $3.61$ V), whereas the RK4 remained highly accurate at the microvolt level and empirically proved an $\mathcal{O}(h^4)$ convergence rate, validating itself as the recommended algorithm for the reliable sizing of IoT power reserves.}
+    \textbf{Abstract.} \textit{This paper presents a numerical study on solving Ordinary Differential Equations (ODEs) applied to industrial signal processing. We analyze the transient discharge of a supercapacitor acting as backup power for an Internet of Things (IoT) sensor, modeled as an underdamped series RLC circuit. The dynamics were simulated using Euler's Method and the Fourth-Order Runge-Kutta (RK4) method. Results showed that the Euler algorithm suffered from a numerical error explosion (reaching $3.61$ V) due to conditional instability, whereas the RK4 remained highly accurate at the microvolt level and empirically proved an $\mathcal{O}(h^4)$ convergence rate. This contrast validates RK4 as the mandatory algorithm for the reliable sizing of IoT power reserves.}
     
     \vspace{0.3cm} % Espaço entre abstract e resumo
     
     \noindent
-    \textbf{Resumo.} \textit{Este artigo apresenta um estudo numérico sobre a solução de Equações Diferenciais Ordinárias (EDOs) aplicadas ao processamento de sinais industriais. Analisa-se a descarga transiente de um supercapacitor operando como reserva de energia para um sensor de Internet das Coisas (IoT), modelado como um circuito RLC série subamortecido. A dinâmica foi simulada via Método de Euler e Runge-Kutta de Quarta Ordem (RK4). Os resultados demonstraram que o Euler sofreu explosão de erro numérico (atingindo $3{,}61$ V), enquanto o RK4 se manteve exato na margem de microvolts e comprovou empiricamente convergência de taxa $\mathcal{O}(h^4)$, sendo o algoritmo recomendado para o dimensionamento seguro destes dispositivos.}
+    \textbf{Resumo.} \textit{Este artigo apresenta um estudo numérico sobre a solução de Equações Diferenciais Ordinárias (EDOs) aplicadas ao processamento de sinais industriais. Analisa-se a descarga transiente de um supercapacitor operando como reserva de energia para um sensor de Internet das Coisas (IoT), modelado como um circuito RLC série subamortecido. A dinâmica foi simulada via Método de Euler e Runge-Kutta de Quarta Ordem (RK4). Os resultados demonstraram que o Euler sofreu explosão de erro numérico (atingindo $3{,}61$ V) devido à sua instabilidade condicional, enquanto o RK4 se manteve exato na margem de microvolts e comprovou empiricamente convergência de taxa $\mathcal{O}(h^4)$. Este contraste valida o RK4 como o algoritmo mandatório para o dimensionamento seguro destes dispositivos.}
 \end{quote}
 
 \vspace{0.1cm}
@@ -69,9 +69,9 @@
 \section{Introdução}
 No atual cenário da Indústria 4.0, a confiabilidade de dispositivos de Internet das Coisas (IoT) depende intrinsecamente de sua resiliência a quedas e falhas de fornecimento na rede elétrica. Para garantir que tais sistemas tenham autonomia suficiente para executar rotinas críticas de emergência (conhecidas como \textit{dying gasp}, como o salvamento de estados na memória flash e o disparo de alertas finais via rádio), pequenos sensores industriais costumam ser equipados com fontes de energia de backup. Modernamente, pesadas e instáveis baterias eletroquímicas têm sido substituídas por supercapacitores (EDLCs), os quais oferecem uma excelente densidade de potência e elevadíssima tolerância a estressores térmicos e variações de corrente.
 
-Sob o ponto de vista físico e de modelagem de hardware, a descarga elétrica contínua desses supercapacitores, alimentando o microcontrolador do dispositivo e atravessando as indutâncias e resistências parasitárias das trilhas da placa, é classicamente modelada como um circuito RLC em série. A dinâmica deste sistema transiente é governada rigorosamente por uma Equação Diferencial Ordinária (EDO) de segunda ordem. Para o engenheiro projetista, prever com exatidão esse comportamento ao longo do tempo é essencial, pois regimes subamortecidos podem induzir severas oscilações transitórias de tensão (\textit{ringing}), capazes de danificar os circuitos lógicos ou reiniciar o sistema prematuramente.
+Sob o ponto de vista físico e de modelagem de hardware, a descarga elétrica contínua desses supercapacitores, alimentando o microcontrolador do dispositivo e atravessando as indutâncias e resistências parasitárias das trilhas da placa, é classicamente modelada como um circuito RLC em série. A dinâmica deste sistema transiente é governada rigorosamente por uma Equação Diferencial Ordinária (EDO) de segunda ordem. 
 
-Visando dominar essa dinâmica, o objetivo central deste estudo é conduzir uma análise comparativa e aprofundada de técnicas matemáticas para a solução da EDO de tensão. Abordaremos a resolução analítica exata via Transformada de Laplace para estabelecer uma base de controle, e implementaremos algoritmos iterativos essenciais da Análise Numérica: o Método de Euler e o Método de Runge-Kutta de Quarta Ordem (RK4). Por meio dessa investigação, o presente artigo demonstrará qual método numérico fornece o melhor equilíbrio de estabilidade para simular confiavelmente a reserva energética de nós IoT.
+Visando dominar essa dinâmica, o objetivo central deste estudo é conduzir uma análise comparativa e aprofundada de técnicas matemáticas para a solução da EDO de tensão. Abordaremos a resolução analítica exata via Transformada de Laplace para estabelecer uma base de controle, e implementaremos algoritmos iterativos essenciais da Análise Numérica: o Método de Euler e o Método de Runge-Kutta de Quarta Ordem (RK4). Por meio dessa investigação, o presente artigo demonstrará não apenas a superioridade matemática do RK4, mas os severos riscos operacionais de se adotar métodos condicionalmente instáveis na engenharia de sistemas de energia críticos.
 
 \section{Modelagem Matemática}
 
@@ -92,22 +92,39 @@ Para a solução analítica ideal deste PVI, emprega-se a Transformada de Laplac
 Diante da complexidade de modelos reais que impedem soluções analíticas fechadas, algoritmos numéricos como Euler e Runge-Kutta permitem a integração passo a passo da EDO, adaptando-se às variações do sistema \cite{modelagem2026, igwe2025}.
 
 \subsection{Método de Euler}
-A aplicação de técnicas numéricas exige a redução da EDO para o espaço de estados, criando duas EDOs de primeira ordem com $x_1(t) = q(t)$ e $x_2(t) = i(t)$ \cite{aselebe2026}:
+A aplicação de técnicas numéricas exige a redução da EDO de segunda ordem para um sistema acoplado de equações de primeira ordem estruturado no espaço de estados. Definindo os componentes do vetor de estado como $x_1(t) = q(t)$ (carga elétrica) e $x_2(t) = i(t) = \frac{dq}{dt}$ (corrente elétrica), a dinâmica linear do circuito transiente RLC expressa-se matricialmente como \cite{aselebe2026}:
 \begin{equation}
-    \begin{bmatrix} x_1' \\ x_2' \end{bmatrix} = \begin{bmatrix} x_2 \\ -\frac{1}{LC}x_1 - \frac{R}{L}x_2 \end{bmatrix}
+    \mathbf{x}'(t) = \mathbf{f}(t, \mathbf{x}) \implies \begin{bmatrix} x_1' \\ x_2' \end{bmatrix} = \begin{bmatrix} x_2 \\ -\frac{1}{LC}x_1 - \frac{R}{L}x_2 \end{bmatrix}
 \end{equation}
-O avanço temporal discreto via Euler aproxima a solução iterativamente. Contudo, esse método é condicionalmente estável e sensível à rigidez das oscilações, exigindo passos finos para não divergir.
+
+O Método de Euler Explícito fundamenta-se na expansão em série de Taylor truncada de primeira ordem para a função vetorial $\mathbf{x}(t)$ em torno do ponto temporal $t=t_n$. Desprezando os termos de derivadas de ordens superiores, o avanço temporal discreto projeta o estado subsequente por meio da seguinte equação em diferenças:
+\begin{equation}
+    \mathbf{x}_{n+1} = \mathbf{x}_n + h \mathbf{f}(t_n, \mathbf{x}_n)
+\end{equation}
+onde $h = t_{n+1} - t_n$ representa o passo constante de discretização temporal adotado no domínio computacional.
+
+Sob a perspectiva da análise numérica de erros, o Método de Euler introduz um Erro de Truncamento Local (ETL) avaliado em $\mathcal{O}(h^2)$. Pelo princípio cumulativo do processo iterativo ao longo do intervalo de simulação, o Erro de Truncamento Global (ETG) resulta em uma escala linear de convergência correspondente a $\mathcal{O}(h)$. Do ponto de vista geométrico, o método assume restritamente que a taxa de variação (inclinação dada pela derivada) calculada na fronteira esquerda do intervalo mantém-se estática e retilínea ao longo de todo o passo $[t_n, t_{n+1}]$, ignorando as concavidades da trajetória real.
+
+Por conseguinte, este algoritmo é classificado matematicamente como \textit{condicionalmente estável}. Quando aplicado a sistemas dinâmicos oscilatórios ou com comportamento rígido (\textit{stiff}) como o circuito RLC configurado em regime subamortecido de alta frequência, a região de estabilidade absoluta do método impõe restrições severas. Caso o parâmetro $h$ exceda o limite determinado pelos autovalores da matriz do sistema, as perturbações geradas pelo erro local deixam de ser dissipadas pelo amortecimento físico e passam a amplificar-se geometricamente a cada iteração, induzindo um colapso catastrófico por divergência numérica artificial.
 
 \section{Runge-Kutta}
 
-Para contornar a deficiência de sobreposições da solução real de Euler, a engenharia recorre à família de métodos de Runge-Kutta. Esses algoritmos consideram a curvatura da função amostrando a derivada em múltiplos pontos por intervalo \cite{firgelli2026rk, stackexchange2015}. O Runge-Kutta de Quarta Ordem (RK4) é o mais adotado \cite{shaikh2022}. Ele projeta o estado avaliando quatro inclinações ($k_1, k_2, k_3, k_4$) intermediárias \cite{razak2025}:
+Para mitigar as severas restrições de estabilidade e contornar a necessidade de passos impraticavelmente reduzidos que onerariam o processamento, a engenharia recorre à família de métodos de Runge-Kutta. Esses algoritmos elevam a ordem de precisão ao amostrarem a derivada do espaço de estados em múltiplos pontos estrategicamente dispostos no interior do intervalo de integração, capturando a curvatura real da função sem demandar a computação analítica complexa de derivadas de ordens superiores \cite{firgelli2026rk, stackexchange2015}.
+
+Dentre estes, o Método de Runge-Kutta de Quarta Ordem (RK4) consolidou-se como o padrão predileto na simulação computacional \cite{shaikh2022}. A extrapolação do vetor de estados a partir de $t_n$ até o instante $t_{n+1}$ é obtida a partir de uma média ponderada clássica envolvendo quatro inclinações vetoriais distintas ($\mathbf{k}_1, \mathbf{k}_2, \mathbf{k}_3, \mathbf{k}_4$), avaliadas sucessivamente por \cite{razak2025}:
 \begin{align}
-    k_1 &= \mathbf{f}(t_n, \mathbf{x}_n) \\
-    k_2 &= \mathbf{f}(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2}k_1) \\
-    k_3 &= \mathbf{f}(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2}k_2) \\
-    k_4 &= \mathbf{f}(t_n + h, \mathbf{x}_n + h k_3)
+    \mathbf{k}_1 &= \mathbf{f}(t_n, \mathbf{x}_n) \\
+    \mathbf{k}_2 &= \mathbf{f}\left(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2}\mathbf{k}_1\right) \\
+    \mathbf{k}_3 &= \mathbf{f}\left(t_n + \frac{h}{2}, \mathbf{x}_n + \frac{h}{2}\mathbf{k}_2\right) \\
+    \mathbf{k}_4 &= \mathbf{f}(t_n + h, \mathbf{x}_n + h \mathbf{k}_3)
 \end{align}
-O poder computacional do RK4 reside na tolerância a erros. O erro global acumulado escala na ordem de $\mathcal{O}(h^4)$ \cite{modelagem2026}. Isso propicia uma convergência extraordinariamente mais rápida se comparada à do Método de Euler \cite{firgelli2026rk}.
+
+Uma vez estabelecidas as taxas de variação, a composição que projeta o novo estado dinâmico do circuito obedece à formulação estruturada por:
+\begin{equation}
+    \mathbf{x}_{n+1} = \mathbf{x}_n + \frac{h}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4)
+\end{equation}
+
+A distribuição de pesos da combinação linear (respectivamente $1/6$, $2/6$, $2/6$ e $1/6$) assemelha-se matematicamente à ponderação polinomial estabelecida na Regra de Integração de Simpson. O equacionamento do RK4 é matematicamente calibrado para fazer com que sua expansão algébrica coincida com os coeficientes da Série de Taylor exata até o termo de quarta ordem. Esse acoplamento confere ao método um Erro de Truncamento Local contido em $\mathcal{O}(h^5)$ e, consecutivamente, um Erro de Truncamento Global acumulado que converge na ordem geométrica de $\mathcal{O}(h^4)$ \cite{modelagem2026}. Esta robustez estende significativamente a região de estabilidade absoluta do algoritmo, qualificando-o para mapear com segurança transitórios oscilatórios agudos sem a dispersão observada em aproximações lineares \cite{firgelli2026rk}.
 
 \section{Metodologia Computacional}
 
@@ -117,22 +134,21 @@ A rotina computacional foi desenhada para inicializar o sistema no instante $t=0
 
 O núcleo do motor de simulação opera através de um laço de repetição temporal (\textit{loop}). A cada incremento de tempo $h$, a EDO acoplada no espaço de estados é resolvida simultaneamente por três processos paralelos: o Método de Euler, o Método de Runge-Kutta de Quarta Ordem (ambos discretizando e atualizando derivadas passo a passo), e o equacionamento analítico de Laplace que entrega o valor exato no respectivo carimbo de tempo. Com o vetor de carga $q(t)$ devidamente projetado, a tensão residual fornecida ao sensor a cada passo é imediatamente derivada através da relação elementar $V_C(t) = \frac{q(t)}{C}$. Os dados coletados dessa matriz temporal contínua são então cruzados em funções algorítmicas de erro para mensurar a exatidão, o desvio absoluto e a convergência geométrica da resposta de cada método numérico testado \cite{igwe2025}.
 
-
 \section{Resultados e Discussões}
 
-A simulação abrangeu $t_{\text{final}} = 15\,\text{ms}$, empregando $n = 60$ passos ($h = 0{,}25\,\text{ms}$). A resistência $R = 2\,\Omega$ submete o circuito a um regime dinâmico subamortecido crítico, provocando oscilações severas que desafiam aproximações lineares.
+A simulação abrangeu $t_{\text{final}} = 15\,\text{ms}$, empregando $n = 60$ passos ($h = 0{,}25\,\text{ms}$). A resistência $R = 2\,\Omega$ submete o circuito a um regime dinâmico subamortecido crítico, provocando oscilações severas que desafiam frontalmente as aproximações lineares.
 
 \subsection{Dinâmica da Tensão}
-A Figura~\ref{fig:comparacao} sobrepõe as estimativas numéricas à solução exata de Laplace. Observa-se que o RK4 se funde perfeitamente à solução analítica. Já o Método de Euler demonstra dificuldades severas nas porções curvas, resultando em desvios consideráveis da tensão.
+A Figura~\ref{fig:comparacao} sobrepõe as estimativas numéricas à solução exata de Laplace. Fica evidente a disparidade de performance: enquanto o RK4 se funde perfeitamente à solução analítica, o Método de Euler demonstra uma incapacidade severa de acompanhar as porções curvas do \textit{ringing}, resultando em desvios consideráveis da tensão.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{comparacao_metodos.png}
+    \includegraphics[width=0.95\textwidth]{comparacao_metodos.png}
     \caption{Curvas de tensão derivadas pela solução exata, Euler e RK4 ($n = 60$).}
     \label{fig:comparacao}
 \end{figure}
 
-A Tabela~\ref{tab:resultados} quantifica os erros absolutos. O RK4 preserva a fidelidade (erro de $10^{-4}$ V), contra falhas grosseiras na ordem de Volts ($10^{0}$ V) no Euler.
+A Tabela~\ref{tab:resultados} quantifica os erros absolutos. O RK4 preserva a fidelidade microscópica (erro na margem de $10^{-4}$ V), contrastando brutalmente com falhas inaceitáveis na ordem de Volts ($10^{0}$ V) apresentadas pelo Euler.
 
 \begin{table}[H]
     \centering
@@ -153,9 +169,9 @@ A Tabela~\ref{tab:resultados} quantifica os erros absolutos. O RK4 preserva a fi
 
 \subsection{Discussão de Erros e Convergência Algorítmica}
 
-A discrepância tabelada levou ao estudo do erro temporal (Figura~\ref{fig:erro}). O RK4 é superior porque avalia quatro pontos por passo e pondera a curvatura, enquanto Euler, de primeira ordem, usa apenas uma reta inicial, tornando-se cego a variações.
+A discrepância documentada levou ao estudo do erro temporal (Figura~\ref{fig:erro}). O RK4 se destaca absolutamente porque pondera a curvatura do sistema usando quatro inclinações intermediárias. O Euler, por ser de primeira ordem e utilizar apenas uma reta tangente inicial, torna-se cego às variações bruscas.
 
-Esse limite causa uma explosão do erro numérico em passos largos. A Figura~\ref{fig:erro} evidencia o desvio do Euler atingindo $3{,}61$ V (valor que supera a própria fonte de $3{,}3$ V), enquanto o RK4 retém precisão microscópica ($4{,}01 \times 10^{-4}$ V), validando sua exatidão absoluta.
+Esse limite geométrico ilustra, na prática, a instabilidade condicional. A Figura~\ref{fig:erro} evidencia o desvio do Euler divergindo até atingir $3{,}61$ V — um valor artificial absurdo que supera a própria tensão de alimentação original da fonte ($3{,}3$ V). Em contrapartida, o RK4 retém precisão extrema ($4{,}01 \times 10^{-4}$ V), validando sua exatidão absoluta mesmo em passos relativamente largos para a dinâmica do circuito.
 
 \begin{figure}[H]
     \centering
@@ -164,7 +180,7 @@ Esse limite causa uma explosão do erro numérico em passos largos. A Figura~\re
     \label{fig:erro}
 \end{figure}
 
-Por fim, o teste de convergência (Figura~\ref{fig:convergencia}) prova os teoremas. A reta de Euler evidencia queda linear de resíduos $\mathcal{O}(h)$, e o RK4 apresenta queda acentuada $\mathcal{O}(h^4)$, sem onerar exaustivamente o processador.
+Por fim, o teste empírico de convergência (Figura~\ref{fig:convergencia}) correlacionando o Erro Máximo com o número de passos ($n$) consolida a teoria matemática. A reta de Euler evidencia a lenta queda linear de resíduos $\mathcal{O}(h)$, enquanto o RK4 apresenta uma queda geométrica drástica e acentuada $\mathcal{O}(h^4)$, alcançando o limite de precisão de máquina com eficiência computacional excepcional.
 
 \begin{figure}[H]
     \centering
@@ -173,12 +189,11 @@ Por fim, o teste de convergência (Figura~\ref{fig:convergencia}) prova os teore
     \label{fig:convergencia}
 \end{figure}
 
-
 \section{Conclusão}
 
-Este estudo demonstrou a extrema importância do Cálculo Numérico no projeto de sistemas embarcados de ultra-baixo consumo. A modelagem da descarga de supercapacitores em sensores IoT, estruturada como uma EDO de segunda ordem, evidenciou a superioridade absoluta do Método de Runge-Kutta de Quarta Ordem (RK4) em relação ao Método de Euler. Enquanto o Euler sofreu explosões de erro numérico de até $3{,}61$ V em um regime dinâmico crítico, o RK4 conteve os resíduos na margem de microvolts e atestou empiricamente uma taxa de convergência da ordem de $\mathcal{O}(h^4)$. 
+Este estudo demonstrou a extrema importância do rigor analítico no projeto de sistemas embarcados de ultra-baixo consumo. A modelagem transiente da descarga de supercapacitores em sensores IoT evidenciou que a escolha de um método numérico transcende a precisão teórica, sendo uma questão crítica de viabilidade e segurança em engenharia. 
 
-Conclui-se que a escolha criteriosa do algoritmo de integração iterativa evita subestimações perigosas, garantindo o dimensionamento exato e a viabilidade das reservas de energia cruciais para a resiliência de redes industriais.
+A análise comprovou a vulnerabilidade prática do Método de Euler, que, devido à sua instabilidade condicional em sistemas subamortecidos, produziu divergências inaceitáveis (erros de até $3{,}61$ V que distorcem as leis da física do circuito). Em contrapartida, o Método de Runge-Kutta de Quarta Ordem (RK4) exibiu superioridade absoluta. Ao avaliar a curvatura e atestar empiricamente uma taxa de convergência $\mathcal{O}(h^4)$, o RK4 manteve estabilidade exata na escala de microvolts. Conclui-se, portanto, que a adoção de algoritmos robustos como o RK4 é mandatória para evitar subestimações perigosas, garantindo um dimensionamento energético confiável e a plena resiliência das redes industriais modernas.
 
 \clearpage
 % --- REFERÊNCIAS BIBLIOGRÁFICAS ---
@@ -199,6 +214,6 @@ Para fins de reprodutibilidade científica e engajamento da comunidade acadêmic
     \url{https://github.com/TonyMPCastro/p3_cn_rlc}
 \end{center}
 
-\text{Acesse o código através do QR Code acima ou pelo link direto.}
+Acesse o código através do QR Code acima ou pelo link direto.
 
 \end{document}
